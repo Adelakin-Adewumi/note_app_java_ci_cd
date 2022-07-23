@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <group>
+        <item
+            android:title="@string/sort_by"
+            android:id="@+id/sortBy"/>
+        <item
+            android:title="@string/delete_all"
+            android:id="@+id/delete"/>
+    </group>
+
+    <item
+        android:title="@string/mode"
+        app:showAsAction="ifRoom|collapseActionView"
+        android:id="@+id/night_mode"
+        android:icon="@drawable/ic_nights"/>
+
+    <item
+        android:title="Day Mode"
+        android:icon="@drawable/ic_sunny"
+        android:visible="false"
+        android:id="@+id/day_mode"
+        app:showAsAction="ifRoom|collapseActionView"/>
+</menu>

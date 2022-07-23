@@ -10,12 +10,16 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class WritingAdapter extends RecyclerView.Adapter<WritingAdapter.ViewHolder> {
     private final ArrayList<Note> mNote;
     private Context mContext;
     private onItemClickListener listener;
+    Note note;
+    Intent data;
 
     public WritingAdapter(ArrayList<Note> mNote, Context mContext) {
         this.mNote = mNote;
@@ -38,7 +42,7 @@ public class WritingAdapter extends RecyclerView.Adapter<WritingAdapter.ViewHold
         holder.mInfo.setText(info);
         holder.mCategory.setText(category);
         holder.mDate.setText(date);
-        //holder.bindTo(note);
+        holder.bindTo(note);
     }
 
     @Override
@@ -73,14 +77,18 @@ public class WritingAdapter extends RecyclerView.Adapter<WritingAdapter.ViewHold
             mDate=itemView.findViewById(R.id.date);
             itemView.setOnClickListener(this);
 
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    int position = getAdapterPosition();
-                    if (listener != null && position !=
-                            RecyclerView.NO_POSITION) {
-                        listener.onItemClick(mNote.get(position));
-                    }
+            itemView.setOnClickListener(view -> {
+                int position = getAdapterPosition();
+                if (listener != null && position !=
+                        RecyclerView.NO_POSITION) {
+                    listener.onItemClick(mNote.get(position));
+                    String title = data.getStringExtra(WritingActivity.EXTRA_TITLE);
+                    String category = data.getStringExtra(WritingActivity.EXTRA_CATEGORY);
+                    Calendar calendar = Calendar.getInstance();
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
+                    String date = dateFormat.format(calendar.getTime());
+                    note = new Note(title, category, date);
+                    mNote.add(note);
                 }
             });
         }
@@ -103,6 +111,24 @@ public class WritingAdapter extends RecyclerView.Adapter<WritingAdapter.ViewHold
 
     }
 
+    void deleteNote(int pos) {
+        Note note = mNote.get(pos);
+        mNote.remove(note);
+        notifyItemRemoved(pos);
+        notifyItemRangeRemoved(0, pos);
+    }
+
+    void deleteAll() {
+        int size = mNote.size();
+        mNote.clear();
+        notifyItemRangeRemoved(0, size);
+    }
+
+
+
+    void cancelDelete(int position) {
+        notifyItemChanged(position);
+    }
 
     public interface onItemClickListener {
         void onItemClick(Note note);

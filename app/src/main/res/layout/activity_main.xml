@@ -13,7 +13,8 @@
         tools:layout_editor_absoluteX="0dp"
         tools:layout_editor_absoluteY="47dp"
         android:id="@+id/recyclerView"
-        tools:listitem="@layout/list_view" />
+        tools:listitem="@layout/list_view"
+        android:onClick="openAgain"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"
