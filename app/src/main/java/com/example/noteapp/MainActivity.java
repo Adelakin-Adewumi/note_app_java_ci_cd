@@ -133,47 +133,24 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-       /**Map<String, String> map = (Map<String, String>) mPreferences.getAll();
-        //Set<String> keySet = map.keySet();
-        mNote.addAll((Collection<? extends Note>) note);
-        SharedPreferences.Editor preferencesEditor = mPreferences.edit();
-        for (Note str : mNote) {
-            if (!map.containsKey(str)) {
-                note = str;
-                break;
-            }
-        }*/
-        //if (requestCode == Add_Note_Request && resultCode == RESULT_OK) {
 
+        if (requestCode == Add_Note_Request && resultCode == RESULT_OK) {
 
             assert data != null;
 
             title = data.getStringExtra(WritingActivity.EXTRA_TITLE);
             Calendar calendar = Calendar.getInstance();
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
-            date = dateFormat.format(calendar.getTime());
-            //date = preferencesEditor.putString(WritingActivity.EXTRA_DATE)
-            mPreferences.getString("", date);
-        mPreferences = getSharedPreferences(WritingActivity.sharedPrefFile, MODE_PRIVATE);
-        SharedPreferences.Editor preferencesEditor =
-                mPreferences.edit();
+
+
         title = data.getStringExtra(WritingActivity.EXTRA_TITLE);
-        preferencesEditor.putString(WritingActivity.EXTRA_TITLE, title);
-        preferencesEditor.putString(WritingActivity.EXTRA_DATE, MainActivity.date);
-        preferencesEditor.apply();
+        date = dateFormat.format(calendar.getTime());
+        setResult(Add_Note_Request, data);
             note = new Note(title, category, date);
             mNote.add(note);
-            mPreferences.getClass();
-            mPreferences.getAll();
-
-
-        //}
-
-        //preferencesEditor.getString(WritingActivity.EXTRA_TITLE, title);
-        //preferencesEditor.putString(WritingActivity.EXTRA_CATEGORY, category);
+        }
         super.onActivityResult(requestCode, resultCode, data);
     }
-
 
 
     public void openTab(View view) {

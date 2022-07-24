@@ -40,6 +40,7 @@ public class WritingActivity extends AppCompatActivity {
 
     private TextView tvCategory, tvDate;
     public List<Note> mNote = new ArrayList<>();
+    String value;
     Note note;
     RadioButton imgView1, imgView2, imgView3, imgView4, imgView5;
     RadioGroup group;
@@ -62,7 +63,7 @@ public class WritingActivity extends AppCompatActivity {
         if (intent!=null) {
             Bundle bundle = intent.getExtras();
             if (bundle!=null) {
-                String value = bundle.getString(EXTRA_TITLE);
+                value = bundle.getString(EXTRA_TITLE);
                 String vvBoy = bundle.getString(EXTRA_CATEGORY);
                 if (value != null) {
                     mMessageText.setText(value);
@@ -124,13 +125,10 @@ public class WritingActivity extends AppCompatActivity {
         tvCategory=findViewById(R.id.category);
         tvDate=findViewById(R.id.date);
 
-        //SharedPreferences.Editor edit = mPreferences.edit();
-        //edit.putString(EXTRA_TITLE, message);
-        //edit.apply();
         if (message.trim().isEmpty()) {
             Toast.makeText(this, "Empty Note Cannot be created",
                     Toast.LENGTH_SHORT).show();
-            finish();
+            return;
         }
 
         intent.putExtra(EXTRA_TITLE, message);
