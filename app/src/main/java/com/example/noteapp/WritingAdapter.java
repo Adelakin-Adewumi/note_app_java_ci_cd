@@ -14,27 +14,46 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-public class WritingAdapter extends RecyclerView.Adapter<WritingAdapter.ViewHolder> {
-    private final ArrayList<Note> mNote;
+public class WritingAdapter extends RecyclerView.ViewHolder {
+    private ArrayList<Note> mNote;
     private Context mContext;
     private onItemClickListener listener;
     Note note;
     Intent data;
 
-    public WritingAdapter(ArrayList<Note> mNote, Context mContext) {
+    private TextView mInfo;
+    private TextView mCategory;
+    private TextView mDate;
+
+    private WritingAdapter(View view) {
+        super(view);
+        mInfo=view.findViewById(R.id.info);
+        mCategory=view.findViewById(R.id.category);
+        mDate=view.findViewById(R.id.date);
+    }
+
+    static WritingAdapter create(ViewGroup parent) {
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.list_view, parent, false);
+        return new WritingAdapter(view);
+    }
+
+    /**public WritingAdapter(@NonNull View itemView, ArrayList<Note> mNote, Context mContext) {
+        super(itemView);
         this.mNote = mNote;
         this.mContext = mContext;
+    }*/
+
+    void bindTo(Note note) {
+        mInfo.setText(note.getInfo());
+        note.setInfo(mInfo.toString());
+        mCategory.setText(note.getCategory());
+        note.setCategory(mCategory.toString());
+        mDate.setText(note.getDate());
+        note.setDate(mDate.getText().toString());
     }
 
-    @NonNull
-    @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new ViewHolder(LayoutInflater.from(parent.getContext()).
-                inflate(R.layout.list_view, parent, false));
-    }
-
-    @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    void bind(@NonNull WritingAdapter holder, int position) {
         Note note = mNote.get(position);
         String info = mNote.get(position).getInfo();
         String category = mNote.get(position).getCategory();
@@ -42,16 +61,12 @@ public class WritingAdapter extends RecyclerView.Adapter<WritingAdapter.ViewHold
         holder.mInfo.setText(info);
         holder.mCategory.setText(category);
         holder.mDate.setText(date);
-        holder.bindTo(note);
+        //holder.bindTo(note);
     }
 
-    @Override
-    public int getItemCount() {
-        return mNote.size();
-    }
 
     public class ViewHolder extends RecyclerView.ViewHolder
-    implements View.OnClickListener{
+            implements View.OnClickListener{
 
         private TextView mInfo;
         private TextView mCategory;
@@ -94,14 +109,7 @@ public class WritingAdapter extends RecyclerView.Adapter<WritingAdapter.ViewHold
         }
 
 
-        void bindTo(Note note) {
-            mInfo.setText(note.getInfo());
-            note.setInfo(mInfo.toString());
-            mCategory.setText(note.getCategory());
-            note.setCategory(mCategory.toString());
-            mDate.setText(note.getDate());
-            note.setDate(mDate.getText().toString());
-        }
+
         @Override
         public void onClick(View view) {
             Note note = mNote.get(getAdapterPosition());
@@ -111,24 +119,6 @@ public class WritingAdapter extends RecyclerView.Adapter<WritingAdapter.ViewHold
 
     }
 
-    void deleteNote(int pos) {
-        Note note = mNote.get(pos);
-        mNote.remove(note);
-        notifyItemRemoved(pos);
-        notifyItemRangeRemoved(0, pos);
-    }
-
-    void deleteAll() {
-        int size = mNote.size();
-        mNote.clear();
-        notifyItemRangeRemoved(0, size);
-    }
-
-
-
-    void cancelDelete(int position) {
-        notifyItemChanged(position);
-    }
 
     public interface onItemClickListener {
         void onItemClick(Note note);
@@ -138,3 +128,5 @@ public class WritingAdapter extends RecyclerView.Adapter<WritingAdapter.ViewHold
         this.listener = listener;
     }
 }
+
+

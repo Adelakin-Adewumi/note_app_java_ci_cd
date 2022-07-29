@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -40,7 +41,7 @@ public class WritingActivity extends AppCompatActivity {
 
     private TextView tvCategory, tvDate;
     public List<Note> mNote = new ArrayList<>();
-    String value;
+    static String value;
     Note note;
     RadioButton imgView1, imgView2, imgView3, imgView4, imgView5;
     RadioGroup group;
@@ -72,7 +73,7 @@ public class WritingActivity extends AppCompatActivity {
             }
         }
 
-
+        setTitle("Writing");
         String category = "";
         group.setOnCheckedChangeListener((radioGroup, i) -> {
             switch (i) {
@@ -124,14 +125,23 @@ public class WritingActivity extends AppCompatActivity {
         String message = mMessageText.getText().toString();
         tvCategory=findViewById(R.id.category);
         tvDate=findViewById(R.id.date);
-
+        /**if (TextUtils.isEmpty(message)) {
+            setResult(RESULT_CANCELED, intent);
+        } else {
+            intent.putExtra(String.valueOf(RESULT_OK), message);
+        }*/
         if (message.trim().isEmpty()) {
-            Toast.makeText(this, "Empty Note Cannot be created",
+            Toast.makeText(this, "Empty Note  cannot be created",
                     Toast.LENGTH_SHORT).show();
             return;
         }
 
         intent.putExtra(EXTRA_TITLE, message);
+
+        int id = getIntent().getIntExtra(value, -1);
+        if (id != -1) {
+            intent.putExtra(value, id);
+        }
         setResult(RESULT_OK, intent);
         finish();
     }

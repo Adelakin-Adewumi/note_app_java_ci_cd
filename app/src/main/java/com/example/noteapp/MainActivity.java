@@ -6,23 +6,20 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.AsyncListDiffer;
 import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,20 +30,21 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Map;
+import java.util.List;
 import java.util.Objects;
 
 
 public class MainActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
-    private WritingAdapter mAdapter;
+    private NoteListAdapter mAdapter;
+    public static final int Edit_Note_Request = 2;
     static String title;
     static String category;
     private ArrayList<Note> mNote;
     private static int EXTRA_REQUEST=2;
+    private NoteViewModel noteViewModel;
     static String date;
     Note note;
     boolean isDarkModeOn;
@@ -54,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
     private AlertDialog dialog;
     private SharedPreferences mPreferences;
     public static final int Add_Note_Request = 1;
+    public static final int NEW_WORD_ACTIVITY_CODE = 1;
     MenuItem item;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,9 +63,15 @@ public class MainActivity extends AppCompatActivity {
 
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mNote = new ArrayList<>();
-  //      mNote.add(note);
-
         setAdapter();
+        noteViewModel = new ViewModelProvider(this)
+                .get(NoteViewModel.class);
+        noteViewModel.getAllWords().observe(this, notes -> {
+//            mAdapter.submitList(notes);
+            mNote = new ArrayList<>(notes);
+        });
+
+
         setItemTouchHelper(mRecyclerView);
     }
 
@@ -122,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void setAdapter() {
-        WritingAdapter adapter = new WritingAdapter(mNote, this);
+        NoteListAdapter adapter = new NoteListAdapter(new NoteListAdapter.WordDiff());
         RecyclerView.LayoutManager layout = new LinearLayoutManager(getApplicationContext());
         mRecyclerView.setLayoutManager(layout);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -130,24 +135,41 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode,
+                                    @Nullable Intent data) {
 
-        if (requestCode == Add_Note_Request && resultCode == RESULT_OK) {
-
+        if (requestCode == NEW_WORD_ACTIVITY_CODE && resultCode == RESULT_OK) {
             assert data != null;
 
             title = data.getStringExtra(WritingActivity.EXTRA_TITLE);
             Calendar calendar = Calendar.getInstance();
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
 
-
         title = data.getStringExtra(WritingActivity.EXTRA_TITLE);
         date = dateFormat.format(calendar.getTime());
-        setResult(Add_Note_Request, data);
             note = new Note(title, category, date);
+            Toast.makeText(this, "Note Saved!", Toast.LENGTH_SHORT).show();
+            noteViewModel.insert(note);
             mNote.add(note);
+        } else if (requestCode == Edit_Note_Request && resultCode == RESULT_OK) {
+            int id = data.getIntExtra(WritingActivity.value, -1);
+
+            if (id == -1) {
+                Toast.makeText(this, "Note can't be updated", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            title = data.getStringExtra(WritingActivity.EXTRA_TITLE);
+            Calendar calendar = Calendar.getInstance();
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
+            date = dateFormat.format(calendar.getTime());
+
+            Note note = new Note(title, category, date);
+            note.setId(id);
+            mNote.add(note);
+            Toast.makeText(this, "Note Updated!", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Note not saved!", Toast.LENGTH_SHORT).show();
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
@@ -155,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void openTab(View view) {
         Intent intent = new Intent(this, WritingActivity.class);
-        startActivityForResult(intent, Add_Note_Request);
+        startActivityForResult(intent, NEW_WORD_ACTIVITY_CODE);
     }
 
     public void openAgain(View view) {

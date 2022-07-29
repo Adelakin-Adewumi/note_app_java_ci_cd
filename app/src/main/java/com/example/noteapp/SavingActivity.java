@@ -65,11 +65,11 @@ public class SavingActivity extends AppCompatActivity {
         String category = MainActivity.category;
         String date = MainActivity.date;
 
-        int id = 2;
+        //int id = 2;
         data.putExtra(WritingActivity.EXTRA_TITLE, info);
         data.putExtra(WritingActivity.EXTRA_CATEGORY, category);
         data.putExtra(WritingActivity.EXTRA_DATE, date);
-        data.putExtra(WritingActivity.EXTRA_ID, id);
+        //data.putExtra(WritingActivity.EXTRA_ID, id);
         startActivityForResult(data, Edit_Note_Request);
     }
 }
