@@ -29,16 +29,46 @@ class NoteRepository {
         });
     }
 
-    void update(Note note) {
+    void deleteAll(Note note) {
         NoteDatabase.databaseWriteExecutor.execute(() ->{
-            noteDoa.update(note);
+            noteDoa.deleteAllNotes();
         });
     }
 
-    void delete(Note note) {
-        NoteDatabase.databaseWriteExecutor.execute(() ->{
-            noteDoa.delete(note);
-        });
+    void update(Note note) {
+        new UpdateNodeAsyncTask(noteDoa).execute(note);
+    }
+
+    private static class UpdateNodeAsyncTask extends AsyncTask<Note, Void, Void> {
+        private NoteDoa noteDoa;
+
+        private UpdateNodeAsyncTask(NoteDoa noteDoa) {
+            this.noteDoa = noteDoa;
+        }
+
+        @Override
+        protected Void doInBackground(Note... notes) {
+            noteDoa.update(notes[0]);
+            return null;
+        }
+    }
+
+    public void delete(Note note) {
+        new DeleteNodeAsyncTask(noteDoa).execute(note);
+    }
+
+    private static class DeleteNodeAsyncTask extends AsyncTask<Note, Void, Void> {
+        private NoteDoa noteDoa;
+
+        private DeleteNodeAsyncTask(NoteDoa noteDoa) {
+            this.noteDoa = noteDoa;
+        }
+
+        @Override
+        protected Void doInBackground(Note... notes) {
+            noteDoa.delete(notes[0]);
+            return null;
+        }
     }
 
 }

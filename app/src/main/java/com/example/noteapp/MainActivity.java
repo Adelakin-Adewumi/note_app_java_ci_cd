@@ -23,7 +23,10 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Toast;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -32,20 +35,23 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 
 public class MainActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
-    private NoteListAdapter mAdapter;
+    private NoteListAdapter adapter;
     public static final int Edit_Note_Request = 2;
     static String title;
     static String category;
     private ArrayList<Note> mNote;
-    private static int EXTRA_REQUEST=2;
+    private static final int EXTRA_REQUEST=2;
     private NoteViewModel noteViewModel;
     static String date;
+    static String time;
     Note note;
     boolean isDarkModeOn;
     SharedPreferences.Editor preferencesEditor;
@@ -53,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences mPreferences;
     public static final int Add_Note_Request = 1;
     public static final int NEW_WORD_ACTIVITY_CODE = 1;
+    int position;
     MenuItem item;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,14 +67,19 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mRecyclerView = findViewById(R.id.recyclerView);
 
+        adapter = new NoteListAdapter(new NoteListAdapter.WordDiff());
+        //adapter = new NoteAdapter();
+        RecyclerView.LayoutManager layout = new LinearLayoutManager(getApplicationContext());
+        mRecyclerView.setLayoutManager(layout);
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        mRecyclerView.setAdapter(adapter);
 
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        //mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mNote = new ArrayList<>();
-        setAdapter();
         noteViewModel = new ViewModelProvider(this)
                 .get(NoteViewModel.class);
         noteViewModel.getAllWords().observe(this, notes -> {
-//            mAdapter.submitList(notes);
+            adapter.submitList(notes);
             mNote = new ArrayList<>(notes);
         });
 
@@ -79,21 +91,13 @@ public class MainActivity extends AppCompatActivity {
         ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new
                 ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT
                         | ItemTouchHelper.RIGHT) {
-
-
                     @Override
                     public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder
                             viewHolder, @NonNull RecyclerView.ViewHolder target) {
                         return false;
                     }
 
-                    @Override
-                    public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView,
-                                            @NonNull RecyclerView.ViewHolder viewHolder,
-                                            float dX, float dY, int actionState, boolean isCurrentlyActive)
-                    {
-                        super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-                    }
+
 
                     @Override
                     public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
@@ -101,20 +105,29 @@ public class MainActivity extends AppCompatActivity {
                                 .setTitle(getString(R.string.Delete))
                                 .setMessage(getString(R.string.delete_text))
                                 .setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {//
-                                        mNote.remove(viewHolder.getAdapterPosition());
-                                //mAdapter.deleteNote(viewHolder.getAdapterPosition());
-                                        mRecyclerView.getAdapter().notifyDataSetChanged();
-                                        Toast.makeText(MainActivity.this, "Note Deleted!",
-                                                Toast.LENGTH_SHORT).show();
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        final int adapterPosition = viewHolder.getAdapterPosition();
+                                        final Note mNote = adapter.getNoteAt(adapterPosition);
+
+
+                                        Snackbar snackbar = Snackbar.make(mRecyclerView, "Note Deleted!"
+                                        , Snackbar.LENGTH_SHORT).setAction(
+                                                "Undo", view -> noteViewModel.insert(mNote)
+                                        );
+
+                                        snackbar.show();
+                                        noteViewModel.delete(adapter.getNoteAt(viewHolder
+                                        .getAdapterPosition()));
+                                        dialog.cancel();
+                                        //mRecyclerView.getAdapter().notifyDataSetChanged();
+
                                     }
                                 })
-                                .setNegativeButton(getString(R.string.no), new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        //mAdapter.cancelDelete(viewHolder.getAdapterPosition());
-                                        finish();
-                                        //mRecyclerView.getAdapter().notifyDataSetChanged();
-                                    }
+                                .setNegativeButton(getString(R.string.no), (dialog, which) -> {
+                                    //mAdapter.cancelDelete(viewHolder.getAdapterPosition());
+                                    adapter.notifyDataSetChanged();
+                                    dialog.cancel();
+                                    //mRecyclerView.getAdapter().notifyDataSetChanged();
                                 })
                                 .setIcon(ContextCompat.getDrawable(getApplicationContext(),
                                         R.drawable.ic_delete)).show();
@@ -125,51 +138,54 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void onTap(Note note) {
+        Intent data = new Intent(MainActivity.this, WritingActivity.class);
+        String info = note.getInfo();
+        String category = note.getCategory();
+        String date = note.getDate();
 
-    private void setAdapter() {
-        NoteListAdapter adapter = new NoteListAdapter(new NoteListAdapter.WordDiff());
-        RecyclerView.LayoutManager layout = new LinearLayoutManager(getApplicationContext());
-        mRecyclerView.setLayoutManager(layout);
-        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        mRecyclerView.setAdapter(adapter);
+        //int id = 2;
+        data.putExtra(WritingActivity.EXTRA_TITLE, info);
+        data.putExtra(WritingActivity.EXTRA_CATEGORY, category);
+        data.putExtra(WritingActivity.EXTRA_DATE, date);
+        startActivityForResult(data, Add_Note_Request);
     }
 
-
     @Override
-    protected void onActivityResult(int requestCode, int resultCode,
-                                    @Nullable Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 
         if (requestCode == NEW_WORD_ACTIVITY_CODE && resultCode == RESULT_OK) {
             assert data != null;
 
             title = data.getStringExtra(WritingActivity.EXTRA_TITLE);
             Calendar calendar = Calendar.getInstance();
-            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
-
+            SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM dd yyyy");
+            SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a");
+            String ntime = timeFormat.format(calendar.getTime());
+            time = ntime.replace("am", "AM").replace("pm", "PM");
         title = data.getStringExtra(WritingActivity.EXTRA_TITLE);
         date = dateFormat.format(calendar.getTime());
-            note = new Note(title, category, date);
+            note = new Note(title, category, date, time);
             Toast.makeText(this, "Note Saved!", Toast.LENGTH_SHORT).show();
             noteViewModel.insert(note);
             mNote.add(note);
-        } else if (requestCode == Edit_Note_Request && resultCode == RESULT_OK) {
-            int id = data.getIntExtra(WritingActivity.value, -1);
+        } else if (data != null) {
+            Bundle bundle = data.getExtras();
+            if (bundle != null) {
+                title = data.getStringExtra(WritingActivity.EXTRA_TITLE);
+                Calendar calendar = Calendar.getInstance();
+                SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
 
-            if (id == -1) {
-                Toast.makeText(this, "Note can't be updated", Toast.LENGTH_SHORT).show();
-                return;
+                title = data.getStringExtra(WritingActivity.EXTRA_TITLE);
+                date = dateFormat.format(calendar.getTime());
+                SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a");
+                String currentTime = new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new Date());
+                String nTime = timeFormat.format(calendar.getTime());
+                time = nTime.replace("am", "AM").replace("pm", "PM");
+                note = new Note(title, category, date, currentTime);
+                Toast.makeText(this, "Note Updated!", Toast.LENGTH_SHORT).show();
+                noteViewModel.update(note);
             }
-            title = data.getStringExtra(WritingActivity.EXTRA_TITLE);
-            Calendar calendar = Calendar.getInstance();
-            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
-            date = dateFormat.format(calendar.getTime());
-
-            Note note = new Note(title, category, date);
-            note.setId(id);
-            mNote.add(note);
-            Toast.makeText(this, "Note Updated!", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, "Note not saved!", Toast.LENGTH_SHORT).show();
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
@@ -181,28 +197,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void openAgain(View view) {
-        Intent data = new Intent(this, SavingActivity.class);
-        startActivity(data);
+        //int position = mNote.get(position);
+      Note note = mNote.get(position);
+        onTap(note);
     }
 
-
-    public void changeMode(MenuItem item) {
-
-        int nightMode = AppCompatDelegate.getDefaultNightMode();
-        if (nightMode == AppCompatDelegate.MODE_NIGHT_YES) {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-            item.setIcon(R.drawable.ic_sunny);
-        } else {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-        }
-        recreate();
-    }
-    @Override
-    protected void onPause() {
-        Intent data= getIntent();
-
-        super.onPause();
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -253,6 +252,24 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        dayMode.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                AppCompatDelegate
+                        .setDefaultNightMode(
+                                AppCompatDelegate
+                                        .MODE_NIGHT_NO);
+                preferencesEditor.putBoolean(
+                        "isDarkModeOn", false);
+                preferencesEditor.apply();
+                Toast.makeText(getApplicationContext(), "Dark Mode Off", Toast.LENGTH_SHORT).show();
+                dayMode.setVisible(false);
+                nightMode.setVisible(true);
+                return true;
+
+            }
+        });
+
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -276,13 +293,14 @@ public class MainActivity extends AppCompatActivity {
                 });
                 return true;
             case R.id.delete:
-                Toast.makeText(this, "Deleted!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "All Deleted!", Toast.LENGTH_SHORT).show();
                 mNote.clear();
+                noteViewModel.deleteAll(note);
                 mRecyclerView.getAdapter().notifyDataSetChanged();
                 //mAdapter.deleteAll();
                 return true;//
             default:
-                return onOptionsItemSelected(item);
+                return super.onOptionsItemSelected(item);
         }
     }
 }

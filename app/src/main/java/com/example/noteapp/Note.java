@@ -1,5 +1,6 @@
 package com.example.noteapp;
 
+import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
@@ -7,18 +8,28 @@ import androidx.room.PrimaryKey;
 @Entity(tableName = "note_table")
 public class Note {
 
+    @NonNull
     @PrimaryKey(autoGenerate = true)
     private int priorityNumber;
     int id;
     String info;
     String category;
     String date;
+    String time;
 
-    public Note(String info, String category
-            , String date) {
+    public Note(String info, String category, String date, String time) {
         this.info = info;
         this.category = category;
         this.date = date;
+        this.time = time;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
     }
 
     public String getInfo() {

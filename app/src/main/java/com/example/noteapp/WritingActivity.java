@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RadioButton;
@@ -39,10 +40,8 @@ public class WritingActivity extends AppCompatActivity {
     public static final int RED = -65536;
 
 
-    private TextView tvCategory, tvDate;
-    public List<Note> mNote = new ArrayList<>();
+
     static String value;
-    Note note;
     RadioButton imgView1, imgView2, imgView3, imgView4, imgView5;
     RadioGroup group;
     private SharedPreferences mPreferences;
@@ -60,14 +59,24 @@ public class WritingActivity extends AppCompatActivity {
         imgView4 = findViewById(R.id.rbWork);
         imgView5 = findViewById(R.id.rbFam);
         group = findViewById(R.id.radioImg);
+        mPreferences = getSharedPreferences(sharedPrefFile, MODE_PRIVATE);
+        /*getWindow().setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE
+        );*/
+        SharedPreferences.Editor preferencesEditor =
+                mPreferences.edit();
         Intent intent = getIntent();
         if (intent!=null) {
             Bundle bundle = intent.getExtras();
             if (bundle!=null) {
-                value = bundle.getString(EXTRA_TITLE);
-                String vvBoy = bundle.getString(EXTRA_CATEGORY);
+                String value = bundle.getString(EXTRA_TITLE);
+                //String vvBoy = bundle.getString(EXTRA_CATEGORY);
                 if (value != null) {
                     mMessageText.setText(value);
+                    setTitle("Edit Note");
+                   // mPreferences.getString(EXTRA_TITLE, value);
+                    //preferencesEditor.putString(EXTRA_TITLE, value);
+                    //preferencesEditor.apply();
 //                    tvCategory.setText(vvBoy);
                 }
             }
@@ -119,17 +128,12 @@ public class WritingActivity extends AppCompatActivity {
 
     }
 
-
     public void saveIt(View view) {
         Intent intent = new Intent();
         String message = mMessageText.getText().toString();
-        tvCategory=findViewById(R.id.category);
-        tvDate=findViewById(R.id.date);
-        /**if (TextUtils.isEmpty(message)) {
-            setResult(RESULT_CANCELED, intent);
-        } else {
-            intent.putExtra(String.valueOf(RESULT_OK), message);
-        }*/
+        TextView tvCategory = findViewById(R.id.category);
+        TextView tvDate = findViewById(R.id.date);
+        TextView tvTime = findViewById(R.id.time);
         if (message.trim().isEmpty()) {
             Toast.makeText(this, "Empty Note  cannot be created",
                     Toast.LENGTH_SHORT).show();

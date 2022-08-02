@@ -12,9 +12,6 @@
             android:name=".SplashScreen"
             android:exported="false" />
         <activity
-            android:name=".SavingActivity"
-            android:exported="false" />
-        <activity
             android:name=".RecyclerViewFragment"
             android:exported="false" />
         <activity

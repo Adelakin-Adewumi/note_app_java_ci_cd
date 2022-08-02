@@ -21,15 +21,17 @@ public class WritingAdapter extends RecyclerView.ViewHolder {
     Note note;
     Intent data;
 
-    private TextView mInfo;
-    private TextView mCategory;
-    private TextView mDate;
+    private final TextView mInfo;
+    private final TextView mCategory;
+    private final TextView mDate;
+    private final TextView mTime;
 
     private WritingAdapter(View view) {
         super(view);
         mInfo=view.findViewById(R.id.info);
         mCategory=view.findViewById(R.id.category);
         mDate=view.findViewById(R.id.date);
+        mTime=view.findViewById(R.id.time);
     }
 
     static WritingAdapter create(ViewGroup parent) {
@@ -38,19 +40,16 @@ public class WritingAdapter extends RecyclerView.ViewHolder {
         return new WritingAdapter(view);
     }
 
-    /**public WritingAdapter(@NonNull View itemView, ArrayList<Note> mNote, Context mContext) {
-        super(itemView);
-        this.mNote = mNote;
-        this.mContext = mContext;
-    }*/
 
-    void bindTo(Note note) {
+
+    public void bindTo(Note note) {
         mInfo.setText(note.getInfo());
-        note.setInfo(mInfo.toString());
+        //note.setInfo(mInfo.toString());
         mCategory.setText(note.getCategory());
-        note.setCategory(mCategory.toString());
+        //note.setCategory(mCategory.toString());
         mDate.setText(note.getDate());
-        note.setDate(mDate.getText().toString());
+        mTime.setText(note.getTime());
+        //note.setDate(mDate.getText().toString());
     }
 
     void bind(@NonNull WritingAdapter holder, int position) {
@@ -102,8 +101,8 @@ public class WritingAdapter extends RecyclerView.ViewHolder {
                     Calendar calendar = Calendar.getInstance();
                     SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
                     String date = dateFormat.format(calendar.getTime());
-                    note = new Note(title, category, date);
-                    mNote.add(note);
+                   // note = new Note(title, category, date);
+                    //mNote.add(note);
                 }
             });
         }
@@ -124,7 +123,8 @@ public class WritingAdapter extends RecyclerView.ViewHolder {
         void onItemClick(Note note);
     }
 
-    public void setOnItemClickListener(onItemClickListener listener) {
+    public void setOnItemClickListener(onItemClickListener listener)
+    {
         this.listener = listener;
     }
 }

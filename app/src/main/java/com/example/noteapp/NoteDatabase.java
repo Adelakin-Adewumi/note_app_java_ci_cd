@@ -49,7 +49,11 @@ public abstract class NoteDatabase extends RoomDatabase {
                 NoteDoa doa = INSTANCE.noteDoa();
                 doa.deleteAllNotes();
 
-                Note note = new Note("We're coming", "Personal", "Now");
+                Calendar calendar = Calendar.getInstance();
+                SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a");
+                String ntime = timeFormat.format(calendar.getTime());
+                String time = ntime.replace("am", "AM").replace("pm", "PM");
+                Note note = new Note("We're coming", "Personal", "Now", time);
                 doa.insert(note);
             });
         }

@@ -19,6 +19,7 @@ import java.util.Calendar;
 public class NoteListAdapter extends ListAdapter<Note, WritingAdapter> {
     private ArrayList<Note> mNote;
     private Context mContext;
+    private onItemClickListener listener;
 
     protected NoteListAdapter(@NonNull DiffUtil.ItemCallback<Note> diffCallback) {
         super(diffCallback);
@@ -28,6 +29,9 @@ public class NoteListAdapter extends ListAdapter<Note, WritingAdapter> {
         super(config);
     }
 
+    public Note getNoteAt(int position) {
+        return getItem(position);
+    }
 
     @NonNull
     @Override
@@ -41,6 +45,7 @@ public class NoteListAdapter extends ListAdapter<Note, WritingAdapter> {
         holder.bindTo(note);
     }
 
+
     static class WordDiff extends DiffUtil.ItemCallback<Note> {
 
         @Override
@@ -53,5 +58,13 @@ public class NoteListAdapter extends ListAdapter<Note, WritingAdapter> {
         public boolean areContentsTheSame(@NonNull Note oldItem, @NonNull Note newItem) {
             return oldItem.getInfo().equals(newItem.getInfo());
         }
+    }
+
+    public interface onItemClickListener {
+        void onItemClick(Note note);
+    }
+
+    public void setOnItemClickListener(WritingAdapter.onItemClickListener listener) {
+        this.listener = (onItemClickListener) listener;
     }
 }
