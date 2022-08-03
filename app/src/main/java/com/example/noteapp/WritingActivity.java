@@ -83,48 +83,7 @@ public class WritingActivity extends AppCompatActivity {
         }
 
         setTitle("Writing");
-        String category = "";
-        group.setOnCheckedChangeListener((radioGroup, i) -> {
-            switch (i) {
-                case R.id.rbUncategorized:
-                    Toast.makeText(this, "Uncategorized", Toast.LENGTH_SHORT).show();
-                    imgView1.setHighlightColor(RED);
-                    imgView1.getHighlightColor();
-                    category.equals("Uncategorized");
-                    break;
-                //
-                case R.id.rbStudy:
-                    Toast.makeText(this, "Study", Toast.LENGTH_SHORT).show();
-                    imgView2.setHighlightColor(DKGRAY);
-                    imgView2.getHighlightColor();
-                    category.equals("Study");
-                    break;
-                //
-                case R.id.rbPersonal:
-                    Toast.makeText(this, "Personal", Toast.LENGTH_SHORT).show();
-                    imgView3.setHighlightColor(GREEN);
-                    imgView3.getHighlightColor();
-                    category.equals("Personal");
-                    break;
-                //
-                case R.id.rbWork:
-                    Toast.makeText(this, "Work", Toast.LENGTH_SHORT).show();
-                    imgView4.setHighlightColor(LTGRAY);
-                    imgView4.getHighlightColor();
-                    category.equals("Work");
-                    break;
-                //
-                case R.id.rbFam:
-                    Toast.makeText(this, "Family", Toast.LENGTH_SHORT).show();
-                    //imgView5.setBackgroundColor(BLUE);
-                    imgView5.setHighlightColor(BLUE);
-                    imgView5.getHighlightColor();
-                    category.equals("Family");
-                    break;
-                default:
-                    break;
-            }
-        });
+
 
     }
 
@@ -139,6 +98,54 @@ public class WritingActivity extends AppCompatActivity {
                     Toast.LENGTH_SHORT).show();
             return;
         }
+        //String category = "";
+        group.setOnCheckedChangeListener((radioGroup, i) -> {
+            switch (i) {
+                case R.id.rbUncategorized:
+                    Toast.makeText(this, "Uncategorized", Toast.LENGTH_SHORT).show();
+                    imgView1.setHighlightColor(RED);
+                    imgView1.getHighlightColor();
+                    String category = "Uncategorized!";
+                    intent.putExtra(EXTRA_CATEGORY, category);
+                    break;
+                //
+                case R.id.rbStudy:
+                    Toast.makeText(this, "Study", Toast.LENGTH_SHORT).show();
+                    imgView2.setHighlightColor(DKGRAY);
+                    imgView2.getHighlightColor();
+                    category = "Study";
+                    intent.putExtra(EXTRA_CATEGORY, category);
+                    break;
+                //
+                case R.id.rbPersonal:
+                    Toast.makeText(this, "Personal", Toast.LENGTH_SHORT).show();
+                    imgView3.setHighlightColor(GREEN);
+                    imgView3.getHighlightColor();
+                    category = "Personal";
+                    intent.putExtra(EXTRA_CATEGORY, category);
+                    break;
+                //
+                case R.id.rbWork:
+                    Toast.makeText(this, "Work", Toast.LENGTH_SHORT).show();
+                    imgView4.setHighlightColor(LTGRAY);
+                    imgView4.getHighlightColor();
+                    category = "Work";
+                    //category.equals("Work");
+                    intent.putExtra(EXTRA_CATEGORY, category);
+                    break;
+                //
+                case R.id.rbFam:
+                    Toast.makeText(this, "Family", Toast.LENGTH_SHORT).show();
+                    //imgView5.setBackgroundColor(BLUE);
+                    imgView5.setHighlightColor(BLUE);
+                    category = "Family";
+                    intent.putExtra(EXTRA_CATEGORY, category);
+                    break;
+                default:
+                    break;
+            }
+        });
+        //intent.putExtra(EXTRA_CATEGORY, category);
 
         intent.putExtra(EXTRA_TITLE, message);
 
@@ -150,17 +157,7 @@ public class WritingActivity extends AppCompatActivity {
         finish();
     }
 
-    @Override
-    protected void onPause() {
-        mPreferences = getSharedPreferences(sharedPrefFile, MODE_PRIVATE);
-        SharedPreferences.Editor preferencesEditor =
-                mPreferences.edit();
-        String message = mMessageText.getText().toString();
-        preferencesEditor.putString(EXTRA_TITLE, message);
-        preferencesEditor.putString(EXTRA_DATE, MainActivity.date);
-        preferencesEditor.apply();
-        super.onPause();
-    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

@@ -36,8 +36,11 @@ class NoteRepository {
     }
 
     void update(Note note) {
-        new UpdateNodeAsyncTask(noteDoa).execute(note);
+        NoteDatabase.databaseWriteExecutor.execute(() ->{
+            noteDoa.update(note);
+        });
     }
+
 
     private static class UpdateNodeAsyncTask extends AsyncTask<Note, Void, Void> {
         private NoteDoa noteDoa;

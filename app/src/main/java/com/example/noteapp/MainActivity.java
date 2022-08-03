@@ -44,14 +44,13 @@ import java.util.Objects;
 public class MainActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private NoteListAdapter adapter;
-    public static final int Edit_Note_Request = 2;
-    static String title;
-    static String category;
+    String title;
+    String category;
     private ArrayList<Note> mNote;
     private static final int EXTRA_REQUEST=2;
     private NoteViewModel noteViewModel;
-    static String date;
-    static String time;
+    String date;
+    String time;
     Note note;
     boolean isDarkModeOn;
     SharedPreferences.Editor preferencesEditor;
@@ -159,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
 
             title = data.getStringExtra(WritingActivity.EXTRA_TITLE);
             Calendar calendar = Calendar.getInstance();
-            SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM dd yyyy");
+            SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy");
             SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a");
             String ntime = timeFormat.format(calendar.getTime());
             time = ntime.replace("am", "AM").replace("pm", "PM");
@@ -178,6 +177,7 @@ public class MainActivity extends AppCompatActivity {
 
                 title = data.getStringExtra(WritingActivity.EXTRA_TITLE);
                 date = dateFormat.format(calendar.getTime());
+                category = data.getStringExtra(WritingActivity.EXTRA_CATEGORY);
                 SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a");
                 String currentTime = new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new Date());
                 String nTime = timeFormat.format(calendar.getTime());
