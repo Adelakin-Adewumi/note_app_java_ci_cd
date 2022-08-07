@@ -6,11 +6,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.AsyncListDiffer;
 import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,12 +15,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Canvas;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
@@ -35,9 +30,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 
 
@@ -55,8 +47,10 @@ public class MainActivity extends AppCompatActivity {
     boolean isDarkModeOn;
     SharedPreferences.Editor preferencesEditor;
     private AlertDialog dialog;
+    View view;
     private SharedPreferences mPreferences;
-    public static final int Add_Note_Request = 1;
+    public static final int Add_Note_Function = 1;
+    public static final int Edit_Note_Function = 2;
     public static final int NEW_WORD_ACTIVITY_CODE = 1;
     int position;
     MenuItem item;
@@ -65,8 +59,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mRecyclerView = findViewById(R.id.recyclerView);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(false);
 
         adapter = new NoteListAdapter(new NoteListAdapter.WordDiff());
+        setTitle("NoteX");
         //adapter = new NoteAdapter();
         RecyclerView.LayoutManager layout = new LinearLayoutManager(getApplicationContext());
         mRecyclerView.setLayoutManager(layout);
@@ -137,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void onTap(Note note) {
+    public boolean onTap(Note note) {
         Intent data = new Intent(MainActivity.this, WritingActivity.class);
         String info = note.getInfo();
         String category = note.getCategory();
@@ -147,13 +143,15 @@ public class MainActivity extends AppCompatActivity {
         data.putExtra(WritingActivity.EXTRA_TITLE, info);
         data.putExtra(WritingActivity.EXTRA_CATEGORY, category);
         data.putExtra(WritingActivity.EXTRA_DATE, date);
-        startActivityForResult(data, Add_Note_Request);
+        startActivityForResult(data, NEW_WORD_ACTIVITY_CODE);
+        return true;
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 
-        if (requestCode == NEW_WORD_ACTIVITY_CODE && resultCode == RESULT_OK) {
+        if (requestCode == Add_Note_Function && resultCode == RESULT_OK)
+        {
             assert data != null;
 
             title = data.getStringExtra(WritingActivity.EXTRA_TITLE);
@@ -162,30 +160,36 @@ public class MainActivity extends AppCompatActivity {
             SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a");
             String ntime = timeFormat.format(calendar.getTime());
             time = ntime.replace("am", "AM").replace("pm", "PM");
-        title = data.getStringExtra(WritingActivity.EXTRA_TITLE);
-        date = dateFormat.format(calendar.getTime());
+            date = dateFormat.format(calendar.getTime());
             note = new Note(title, category, date, time);
             Toast.makeText(this, "Note Saved!", Toast.LENGTH_SHORT).show();
             noteViewModel.insert(note);
             mNote.add(note);
-        } else if (data != null) {
-            Bundle bundle = data.getExtras();
-            if (bundle != null) {
-                title = data.getStringExtra(WritingActivity.EXTRA_TITLE);
-                Calendar calendar = Calendar.getInstance();
-                SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
-
-                title = data.getStringExtra(WritingActivity.EXTRA_TITLE);
-                date = dateFormat.format(calendar.getTime());
-                category = data.getStringExtra(WritingActivity.EXTRA_CATEGORY);
-                SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a");
-                String currentTime = new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new Date());
-                String nTime = timeFormat.format(calendar.getTime());
-                time = nTime.replace("am", "AM").replace("pm", "PM");
-                note = new Note(title, category, date, currentTime);
-                Toast.makeText(this, "Note Updated!", Toast.LENGTH_SHORT).show();
-                noteViewModel.update(note);
+        }
+        else if (requestCode == Edit_Note_Function && resultCode == RESULT_OK) {
+            assert data != null;
+            int id = data.getIntExtra(WritingActivity.EXTRA_ID, 0);
+            if (id == -1) {
+                Toast.makeText(this, "Note can't be updated", Toast.LENGTH_SHORT).show();
+                return;
             }
+
+            Calendar calendar = Calendar.getInstance();
+            SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy");
+
+            title = data.getStringExtra(WritingActivity.EXTRA_TITLE);
+            date = dateFormat.format(calendar.getTime());
+            category = data.getStringExtra(WritingActivity.EXTRA_CATEGORY);
+
+
+            SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a");
+            String ntime = timeFormat.format(calendar.getTime());
+            time = ntime.replace("am", "AM").replace("pm", "PM");
+                note = new Note(title, category, date, time);
+                Toast.makeText(this, "Note Updated!", Toast.LENGTH_SHORT).show();
+                note.setId(id);
+                noteViewModel.update(note);
+
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
@@ -196,10 +200,14 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(intent, NEW_WORD_ACTIVITY_CODE);
     }
 
-    public void openAgain(View view) {
+    public boolean openAgain(View view) {
         //int position = mNote.get(position);
+        /**for (int i = 0; i<= mNote.size(); i++) {
+            note = mNote.get(i);
+        }*/
       Note note = mNote.get(position);
         onTap(note);
+        return true;
     }
 
 

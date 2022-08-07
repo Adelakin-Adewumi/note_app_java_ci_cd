@@ -45,6 +45,14 @@ public class NoteListAdapter extends ListAdapter<Note, WritingAdapter> {
         holder.bindTo(note);
     }
 
+    public interface onItemClickListener {
+        void onItemClick(Note note);
+    }
+
+    public void setOnItemClickListener(onItemClickListener listener) {
+        this.listener = listener;
+    }
+
 
     static class WordDiff extends DiffUtil.ItemCallback<Note> {
 
@@ -60,11 +68,5 @@ public class NoteListAdapter extends ListAdapter<Note, WritingAdapter> {
         }
     }
 
-    public interface onItemClickListener {
-        void onItemClick(Note note);
-    }
 
-    public void setOnItemClickListener(WritingAdapter.onItemClickListener listener) {
-        this.listener = (onItemClickListener) listener;
-    }
 }

@@ -6,42 +6,31 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.TextUtils;
+
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
+
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Map;
-
 public class WritingActivity extends AppCompatActivity {
-    EditText mMessageText;
-    public static final String EXTRA_ID = "com.example.achitectureexample.EXTRA_ID";
+    private EditText mMessageText;
+    public static final String EXTRA_ID = "com.example.noteapp.EXTRA_ID";
     public static final String EXTRA_TITLE = "com.example.noteapp.EXTRA_TITLE";
-    public static final String EXTRA_DATE = "com.example.achitectureexample.EXTRA_ID";
-    public static final String EXTRA_CATEGORY = "com.example.achitectureexample.EXTRA_CATEGORY";
+    public static final String EXTRA_DATE = "com.example.noteapp.EXTRA_ID";
+    public static final String EXTRA_CATEGORY = "com.example.noteapp.EXTRA_CATEGORY";
+    public static final String EXTRA_TIME = "com.example.noteapp.EXTRA.TIME";
     public static final int BLUE = -16776961;
     public static final int DKGRAY = -12303292;
     public static final int GREEN = -16711936;
     public static final int LTGRAY = -3355444;
     public static final int RED = -65536;
-
-
-
-    static String value;
+    //static String value;
     RadioButton imgView1, imgView2, imgView3, imgView4, imgView5;
     RadioGroup group;
     private SharedPreferences mPreferences;
@@ -60,29 +49,29 @@ public class WritingActivity extends AppCompatActivity {
         imgView5 = findViewById(R.id.rbFam);
         group = findViewById(R.id.radioImg);
         mPreferences = getSharedPreferences(sharedPrefFile, MODE_PRIVATE);
-        /*getWindow().setSoftInputMode(
-                WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE
-        );*/
-        SharedPreferences.Editor preferencesEditor =
-                mPreferences.edit();
+
         Intent intent = getIntent();
-        if (intent!=null) {
+        if (intent.hasExtra(EXTRA_ID)) {
+            setTitle("Edit Note");
+            mMessageText.setText(intent.getStringExtra(EXTRA_TITLE));
+        } else {
+            setTitle("Writing");
+        }
+        /**if (intent!=null) {
             Bundle bundle = intent.getExtras();
             if (bundle!=null) {
                 String value = bundle.getString(EXTRA_TITLE);
-                //String vvBoy = bundle.getString(EXTRA_CATEGORY);
+
                 if (value != null) {
                     mMessageText.setText(value);
                     setTitle("Edit Note");
-                   // mPreferences.getString(EXTRA_TITLE, value);
-                    //preferencesEditor.putString(EXTRA_TITLE, value);
-                    //preferencesEditor.apply();
-//                    tvCategory.setText(vvBoy);
+                } else {
+                    setTitle("Writing");
                 }
             }
-        }
+        }*/
 
-        setTitle("Writing");
+
 
 
     }
@@ -149,9 +138,9 @@ public class WritingActivity extends AppCompatActivity {
 
         intent.putExtra(EXTRA_TITLE, message);
 
-        int id = getIntent().getIntExtra(value, -1);
+        int id = intent.getIntExtra(EXTRA_ID, -1);
         if (id != -1) {
-            intent.putExtra(value, id);
+            intent.putExtra(EXTRA_ID, id);
         }
         setResult(RESULT_OK, intent);
         finish();

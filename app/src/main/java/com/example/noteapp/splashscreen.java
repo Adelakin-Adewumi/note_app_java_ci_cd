@@ -5,9 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 
-public class SplashScreen extends AppCompatActivity {
+public class splashscreen extends AppCompatActivity {
     public static int SPLASH_TIME_OUT = 5000;
 
     @Override
@@ -15,14 +14,13 @@ public class SplashScreen extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash_screen);
 
-        Handler han = new Handler(Looper.getMainLooper());
-        han.postDelayed(goToMainActivity(), 3000);
+        new Handler().postDelayed(() -> {
+            Intent homeIntent = new Intent(splashscreen.this, MainActivity.class);
+            startActivity(homeIntent);
+            finish();
+        },SPLASH_TIME_OUT);
 
     }
 
-    private Runnable goToMainActivity() {
-        startActivity(new Intent(SplashScreen.this, MainActivity.class));
-        finish();
-        return null;
-    }
+
 }

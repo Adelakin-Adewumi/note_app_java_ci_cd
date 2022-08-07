@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     app:layout_constraintCircleRadius="20dp"
@@ -11,7 +12,6 @@
     app:cardCornerRadius="6dp"
     app:cardElevation="2dp"
     app:cardPreventCornerOverlap="true"
-    android:onClick="openAgain"
     android:padding="5dp"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
@@ -21,8 +21,8 @@
         android:layout_alignParentStart="true"
         android:text="@string/information"
         android:layout_marginStart="10dp"
-        android:onClick="openAgain"
         android:maxHeight="15dp"
+        android:onClick="openAgain"
         android:layout_marginTop="5dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -32,6 +32,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/time"
+        android:onClick="openAgain"
         android:text="@string/time"
         android:layout_marginStart="140dp"
         android:layout_marginTop="25dp"/>
@@ -40,10 +41,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
+        android:onClick="openAgain"
         android:layout_marginStart="10dp"
         android:text="@string/category"
         android:id="@+id/category"
-        android:onClick="openAgain"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>
@@ -51,11 +52,11 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:onClick="openAgain"
         android:layout_alignParentStart="@+id/category"
         android:layout_alignParentTop="@+id/textInfo"
         android:layout_marginStart="200dp"
         android:text="@string/date"
-        android:onClick="openAgain"
         android:id="@+id/date"
         app:layout_constraintStart_toEndOf="@id/category"
         app:layout_constraintEnd_toEndOf="parent"
