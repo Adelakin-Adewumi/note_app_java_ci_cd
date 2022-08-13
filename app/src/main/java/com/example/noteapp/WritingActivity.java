@@ -57,23 +57,6 @@ public class WritingActivity extends AppCompatActivity {
         } else {
             setTitle("Writing");
         }
-        /**if (intent!=null) {
-            Bundle bundle = intent.getExtras();
-            if (bundle!=null) {
-                String value = bundle.getString(EXTRA_TITLE);
-
-                if (value != null) {
-                    mMessageText.setText(value);
-                    setTitle("Edit Note");
-                } else {
-                    setTitle("Writing");
-                }
-            }
-        }*/
-
-
-
-
     }
 
     public void saveIt(View view) {
@@ -88,6 +71,8 @@ public class WritingActivity extends AppCompatActivity {
             return;
         }
         //String category = "";
+        Note mNote = new Note(EXTRA_TITLE, EXTRA_CATEGORY, MainActivity.date, MainActivity.time);
+        intent.putExtra(EXTRA_ID, mNote);
         group.setOnCheckedChangeListener((radioGroup, i) -> {
             switch (i) {
                 case R.id.rbUncategorized:
@@ -138,10 +123,12 @@ public class WritingActivity extends AppCompatActivity {
 
         intent.putExtra(EXTRA_TITLE, message);
 
+
         int id = intent.getIntExtra(EXTRA_ID, -1);
-        if (id != -1) {
-            intent.putExtra(EXTRA_ID, id);
-        }
+        intent.putExtra(EXTRA_ID, id);
+        /*if (id == -1) {
+
+        }*/
         setResult(RESULT_OK, intent);
         finish();
     }

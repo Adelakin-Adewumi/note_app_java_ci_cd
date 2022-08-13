@@ -8,8 +8,8 @@ import androidx.lifecycle.LiveData;
 import java.util.List;
 
 class NoteRepository {
-    private NoteDoa noteDoa;
-    private LiveData<List<Note>> allNotes;
+    private final NoteDoa noteDoa;
+    private final LiveData<List<Note>> allNotes;
 
     NoteRepository(Application application) {
         NoteDatabase database = NoteDatabase.getDatabase(application);
@@ -24,8 +24,17 @@ class NoteRepository {
 
 
     void insert(Note note) {
+        NoteDatabase.databaseWriteExecutor.execute(() ->
+                noteDoa.insert(note));
+    }
+
+    public void update(Note note) {
+        new UpdateNodeAsyncTask(noteDoa).execute(note);
+    }
+
+    void delete(Note note) {
         NoteDatabase.databaseWriteExecutor.execute(() ->{
-            noteDoa.insert(note);
+            noteDoa.delete(note);
         });
     }
 
@@ -34,13 +43,6 @@ class NoteRepository {
             noteDoa.deleteAllNotes();
         });
     }
-
-    void update(Note note) {
-        NoteDatabase.databaseWriteExecutor.execute(() ->{
-            noteDoa.update(note);
-        });
-    }
-
 
     private static class UpdateNodeAsyncTask extends AsyncTask<Note, Void, Void> {
         private NoteDoa noteDoa;
@@ -56,9 +58,9 @@ class NoteRepository {
         }
     }
 
-    public void delete(Note note) {
+    /*public void delete(Note note) {
         new DeleteNodeAsyncTask(noteDoa).execute(note);
-    }
+    }*/
 
     private static class DeleteNodeAsyncTask extends AsyncTask<Note, Void, Void> {
         private NoteDoa noteDoa;

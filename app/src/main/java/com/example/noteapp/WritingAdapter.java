@@ -20,6 +20,7 @@ public class WritingAdapter extends RecyclerView.ViewHolder {
     private onItemClickListener listener;
     Note note;
     Intent data;
+    private RecyclerView mRecyclerView;
 
     private final TextView mInfo;
     private final TextView mCategory;
@@ -32,15 +33,31 @@ public class WritingAdapter extends RecyclerView.ViewHolder {
         mCategory=view.findViewById(R.id.category);
         mDate=view.findViewById(R.id.date);
         mTime=view.findViewById(R.id.time);
+        //mRecyclerView=view.findViewById(R.id.recyclerView);
+        //view.setOnClickListener((View.OnClickListener) this);
+
+        View.OnClickListener mOnClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int itemPosition = mRecyclerView.getChildLayoutPosition(view);
+                view.setOnClickListener(this);
+                int position = getAdapterPosition();
+                if (listener != null && position !=
+                        RecyclerView.NO_POSITION) {
+                    listener.onItemClick(mNote.get(position));
+                }
+//                listener.onItemClick(note);
+            }
+        };
+        view.setOnClickListener(mOnClickListener);
     }
 
     static WritingAdapter create(ViewGroup parent) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.list_view, parent, false);
+        //view.setOnClickListener(onItemClickListener);
         return new WritingAdapter(view);
     }
-
-
 
     public void bindTo(Note note) {
         mInfo.setText(note.getInfo());
@@ -124,6 +141,7 @@ public class WritingAdapter extends RecyclerView.ViewHolder {
     }
 
     public void setOnItemClickListener(onItemClickListener listener)
+
     {
         this.listener = listener;
     }

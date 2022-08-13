@@ -22,7 +22,6 @@
         android:text="@string/information"
         android:layout_marginStart="10dp"
         android:maxHeight="15dp"
-        android:onClick="openAgain"
         android:layout_marginTop="5dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -32,7 +31,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/time"
-        android:onClick="openAgain"
         android:text="@string/time"
         android:layout_marginStart="140dp"
         android:layout_marginTop="25dp"/>
@@ -41,7 +39,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
-        android:onClick="openAgain"
         android:layout_marginStart="10dp"
         android:text="@string/category"
         android:id="@+id/category"
@@ -52,7 +49,6 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="openAgain"
         android:layout_alignParentStart="@+id/category"
         android:layout_alignParentTop="@+id/textInfo"
         android:layout_marginStart="200dp"

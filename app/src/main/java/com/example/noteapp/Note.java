@@ -1,17 +1,21 @@
 package com.example.noteapp;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import java.io.Serializable;
 
+@SuppressWarnings("serial")
 @Entity(tableName = "note_table")
-public class Note {
+public class Note implements Serializable {
 
-    @NonNull
     @PrimaryKey(autoGenerate = true)
+    private int id;
     private int priorityNumber;
-    int id;
     String info;
     String category;
     String date;
@@ -23,6 +27,15 @@ public class Note {
         this.date = date;
         this.time = time;
     }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
 
     public String getTime() {
         return time;
@@ -44,13 +57,7 @@ public class Note {
         this.priorityNumber = priorityNumber;
     }
 
-    public int getId() {
-        return id;
-    }
 
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public String getCategory() {
         return category;

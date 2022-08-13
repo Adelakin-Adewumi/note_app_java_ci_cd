@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DefaultItemAnimator;
@@ -12,12 +13,18 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
 
@@ -35,14 +42,15 @@ import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
-    private NoteListAdapter adapter;
+    //private NoteListAdapter adapter;
+    private NoteAdapter adapter;
     String title;
     String category;
     private ArrayList<Note> mNote;
-    private static final int EXTRA_REQUEST=2;
+    private static final int EXTRA_REQUEST = 2;
     private NoteViewModel noteViewModel;
-    String date;
-    String time;
+    static String date;
+    static String time;
     Note note;
     boolean isDarkModeOn;
     SharedPreferences.Editor preferencesEditor;
@@ -52,8 +60,41 @@ public class MainActivity extends AppCompatActivity {
     public static final int Add_Note_Function = 1;
     public static final int Edit_Note_Function = 2;
     public static final int NEW_WORD_ACTIVITY_CODE = 1;
+    private static final int NOTIFICATION_ID = 0;
+    private static final String PRIMARY_CHANNEL_ID = "primary_notification_channel";
+    private NotificationManager mNotifyManager;
     int position;
     MenuItem item;
+
+    @NonNull
+    private NotificationCompat.Builder getNotificationBuilder(){
+        Intent notificationIntent = new Intent(this, MainActivity.class);
+        PendingIntent notificationPendingIntent = PendingIntent.getActivity(this,
+                NOTIFICATION_ID, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        NotificationCompat.Builder notifyBuilder = new
+                NotificationCompat.Builder(this, PRIMARY_CHANNEL_ID)
+                .setContentTitle("You've been notified")
+                .setContentText("This is your notification text")
+                .setSmallIcon(R.drawable.ic_android)
+                .setContentIntent(notificationPendingIntent)
+                .setAutoCancel(true)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setDefaults(NotificationCompat.DEFAULT_ALL);
+        return notifyBuilder;
+    }
+
+    private void createNotificationChannel() {
+        mNotifyManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel notificationChannel = new NotificationChannel(PRIMARY_CHANNEL_ID,
+                    "Mascot Notification", NotificationManager.IMPORTANCE_HIGH);
+            notificationChannel.enableLights(true);
+            notificationChannel.setLightColor(Color.RED);
+            notificationChannel.enableVibration(true);
+            notificationChannel.setDescription("Notification from Mascot");
+            mNotifyManager.createNotificationChannel(notificationChannel);
+        }
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,13 +102,24 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView = findViewById(R.id.recyclerView);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(false);
 
-        adapter = new NoteListAdapter(new NoteListAdapter.WordDiff());
+        //adapter = new NoteListAdapter(new NoteListAdapter.WordDiff());
         setTitle("NoteX");
-        //adapter = new NoteAdapter();
+        adapter = new NoteAdapter();
         RecyclerView.LayoutManager layout = new LinearLayoutManager(getApplicationContext());
         mRecyclerView.setLayoutManager(layout);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mRecyclerView.setAdapter(adapter);
+
+        //Get the time for the alert
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a");
+        String ntime = timeFormat.format(calendar.getTime());
+        time = ntime.replace("am", "AM").replace("pm", "PM");
+        if (time.equals("10.30 PM")) {
+            sendNotification();
+        }
+        createNotificationChannel();
+
 
         //mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mNote = new ArrayList<>();
@@ -77,9 +129,29 @@ public class MainActivity extends AppCompatActivity {
             adapter.submitList(notes);
             mNote = new ArrayList<>(notes);
         });
+        adapter.setOnItemClickListener(new NoteAdapter.onItemClickListener() {
+            @Override
+            public void onItemClick(Note note) {
+                Intent data = new Intent(MainActivity.this, WritingActivity.class);
+                String info = note.getInfo();
+                String category = note.getCategory();
+                String date = note.getDate();
 
+                int id = note.getId();
+                data.putExtra(WritingActivity.EXTRA_TITLE, info);
+                data.putExtra(WritingActivity.EXTRA_CATEGORY, category);
+                data.putExtra(WritingActivity.EXTRA_DATE, date);
+                data.putExtra(WritingActivity.EXTRA_ID, id);
+                startActivityForResult(data, Edit_Note_Function);
+            }
+        });
 
         setItemTouchHelper(mRecyclerView);
+    }
+
+    public void sendNotification() {
+        NotificationCompat.Builder notifyBuilder = getNotificationBuilder();
+        mNotifyManager.notify(NOTIFICATION_ID, notifyBuilder.build());
     }
 
     private void setItemTouchHelper(RecyclerView recyclerView) {
@@ -133,20 +205,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public boolean onTap(Note note) {
-        Intent data = new Intent(MainActivity.this, WritingActivity.class);
-        String info = note.getInfo();
-        String category = note.getCategory();
-        String date = note.getDate();
-
-        //int id = 2;
-        data.putExtra(WritingActivity.EXTRA_TITLE, info);
-        data.putExtra(WritingActivity.EXTRA_CATEGORY, category);
-        data.putExtra(WritingActivity.EXTRA_DATE, date);
-        startActivityForResult(data, NEW_WORD_ACTIVITY_CODE);
-        return true;
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 
@@ -164,15 +222,11 @@ public class MainActivity extends AppCompatActivity {
             note = new Note(title, category, date, time);
             Toast.makeText(this, "Note Saved!", Toast.LENGTH_SHORT).show();
             noteViewModel.insert(note);
-            mNote.add(note);
+           // mNote.add(note);
         }
         else if (requestCode == Edit_Note_Function && resultCode == RESULT_OK) {
             assert data != null;
-            int id = data.getIntExtra(WritingActivity.EXTRA_ID, 0);
-            if (id == -1) {
-                Toast.makeText(this, "Note can't be updated", Toast.LENGTH_SHORT).show();
-                return;
-            }
+            int id = data.getIntExtra(WritingActivity.EXTRA_ID, -1);
 
             Calendar calendar = Calendar.getInstance();
             SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy");
@@ -180,15 +234,16 @@ public class MainActivity extends AppCompatActivity {
             title = data.getStringExtra(WritingActivity.EXTRA_TITLE);
             date = dateFormat.format(calendar.getTime());
             category = data.getStringExtra(WritingActivity.EXTRA_CATEGORY);
-
+            Note noter = (Note) data.getSerializableExtra(WritingActivity.EXTRA_ID);
 
             SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a");
             String ntime = timeFormat.format(calendar.getTime());
             time = ntime.replace("am", "AM").replace("pm", "PM");
-                note = new Note(title, category, date, time);
-                Toast.makeText(this, "Note Updated!", Toast.LENGTH_SHORT).show();
-                note.setId(id);
-                noteViewModel.update(note);
+            note = new Note(title, category, date, time);
+            note.setId(id);
+            noteViewModel.update(note);
+            Toast.makeText(this, "Note Updated!", Toast.LENGTH_SHORT).show();
+
 
         }
         super.onActivityResult(requestCode, resultCode, data);
@@ -198,16 +253,6 @@ public class MainActivity extends AppCompatActivity {
     public void openTab(View view) {
         Intent intent = new Intent(this, WritingActivity.class);
         startActivityForResult(intent, NEW_WORD_ACTIVITY_CODE);
-    }
-
-    public boolean openAgain(View view) {
-        //int position = mNote.get(position);
-        /**for (int i = 0; i<= mNote.size(); i++) {
-            note = mNote.get(i);
-        }*/
-      Note note = mNote.get(position);
-        onTap(note);
-        return true;
     }
 
 
