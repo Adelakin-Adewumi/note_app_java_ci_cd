@@ -56,6 +56,8 @@ class NoteRepository {
             noteDoa.update(notes[0]);
             return null;
         }
+
+
     }
 
     /*public void delete(Note note) {

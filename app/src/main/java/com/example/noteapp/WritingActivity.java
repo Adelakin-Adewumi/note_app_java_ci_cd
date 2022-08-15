@@ -24,13 +24,17 @@ public class WritingActivity extends AppCompatActivity {
     public static final String EXTRA_TITLE = "com.example.noteapp.EXTRA_TITLE";
     public static final String EXTRA_DATE = "com.example.noteapp.EXTRA_ID";
     public static final String EXTRA_CATEGORY = "com.example.noteapp.EXTRA_CATEGORY";
+    public static final String EXTRA_MESSAGE = "com.example.noteapp.EXTRA_CATEGORY";
     public static final String EXTRA_TIME = "com.example.noteapp.EXTRA.TIME";
     public static final int BLUE = -16776961;
     public static final int DKGRAY = -12303292;
     public static final int GREEN = -16711936;
     public static final int LTGRAY = -3355444;
     public static final int RED = -65536;
+    public static final int RESULT_CODE = 2;
     //static String value;
+
+
     RadioButton imgView1, imgView2, imgView3, imgView4, imgView5;
     RadioGroup group;
     private SharedPreferences mPreferences;
@@ -62,17 +66,14 @@ public class WritingActivity extends AppCompatActivity {
     public void saveIt(View view) {
         Intent intent = new Intent();
         String message = mMessageText.getText().toString();
-        TextView tvCategory = findViewById(R.id.category);
-        TextView tvDate = findViewById(R.id.date);
-        TextView tvTime = findViewById(R.id.time);
         if (message.trim().isEmpty()) {
-            Toast.makeText(this, "Empty Note  cannot be created",
+            Toast.makeText(this, "Empty Note cannot be created",
                     Toast.LENGTH_SHORT).show();
             return;
         }
         //String category = "";
-        Note mNote = new Note(EXTRA_TITLE, EXTRA_CATEGORY, MainActivity.date, MainActivity.time);
-        intent.putExtra(EXTRA_ID, mNote);
+        Note mNote = new Note(message, EXTRA_CATEGORY, MainActivity.date, MainActivity.time);
+        //intent.putExtra(EXTRA_MESSAGE, mNote);
         group.setOnCheckedChangeListener((radioGroup, i) -> {
             switch (i) {
                 case R.id.rbUncategorized:
@@ -120,20 +121,23 @@ public class WritingActivity extends AppCompatActivity {
             }
         });
         //intent.putExtra(EXTRA_CATEGORY, category);
-
+        mNote.setInfo(message);
+        mNote.setCategory(EXTRA_CATEGORY);
+        mNote.setDate(MainActivity.date);
+        mNote.setTime(MainActivity.time);
         intent.putExtra(EXTRA_TITLE, message);
+       if (intent.hasExtra(EXTRA_MESSAGE)) {
+           Toast.makeText(this, "Noted!", Toast.LENGTH_LONG).show();
+            String message1 = mMessageText.getText().toString();
+            intent.putExtra(EXTRA_TITLE, message1);
+            setResult(RESULT_CODE, intent);
+        }
 
-
-        int id = intent.getIntExtra(EXTRA_ID, -1);
-        intent.putExtra(EXTRA_ID, id);
-        /*if (id == -1) {
-
-        }*/
+        //int id = intent.getIntExtra(EXTRA_ID, -1);
+        //intent.putExtra(EXTRA_ID, id);
         setResult(RESULT_OK, intent);
         finish();
     }
-
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

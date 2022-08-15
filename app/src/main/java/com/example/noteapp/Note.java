@@ -14,10 +14,10 @@ import java.io.Serializable;
 public class Note implements Serializable {
 
     @PrimaryKey(autoGenerate = true)
-    private int id;
     private int priorityNumber;
     String info;
     String category;
+    private int id;
     String date;
     String time;
 

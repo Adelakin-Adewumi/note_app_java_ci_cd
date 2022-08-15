@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -26,6 +27,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
@@ -40,7 +42,7 @@ import java.util.Comparator;
 import java.util.Objects;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements TimePickerDialog.OnTimeSetListener {
     private RecyclerView mRecyclerView;
     //private NoteListAdapter adapter;
     private NoteAdapter adapter;
@@ -59,11 +61,9 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences mPreferences;
     public static final int Add_Note_Function = 1;
     public static final int Edit_Note_Function = 2;
-    public static final int NEW_WORD_ACTIVITY_CODE = 1;
     private static final int NOTIFICATION_ID = 0;
     private static final String PRIMARY_CHANNEL_ID = "primary_notification_channel";
     private NotificationManager mNotifyManager;
-    int position;
     MenuItem item;
 
     @NonNull
@@ -208,8 +208,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 
-        if (requestCode == Add_Note_Function && resultCode == RESULT_OK)
-        {
+        if (requestCode == Add_Note_Function && resultCode == RESULT_OK) {
             assert data != null;
 
             title = data.getStringExtra(WritingActivity.EXTRA_TITLE);
@@ -219,10 +218,13 @@ public class MainActivity extends AppCompatActivity {
             String ntime = timeFormat.format(calendar.getTime());
             time = ntime.replace("am", "AM").replace("pm", "PM");
             date = dateFormat.format(calendar.getTime());
-            note = new Note(title, category, date, time);
+
+            //note = new Note(title, category, date, time);
+            note = new Note(note.getInfo(), note.getCategory(),
+                    note.getDate(), note.getTime());
+            //note = new Note(title, category, date, time);
             Toast.makeText(this, "Note Saved!", Toast.LENGTH_SHORT).show();
             noteViewModel.insert(note);
-           // mNote.add(note);
         }
         else if (requestCode == Edit_Note_Function && resultCode == RESULT_OK) {
             assert data != null;
@@ -234,17 +236,16 @@ public class MainActivity extends AppCompatActivity {
             title = data.getStringExtra(WritingActivity.EXTRA_TITLE);
             date = dateFormat.format(calendar.getTime());
             category = data.getStringExtra(WritingActivity.EXTRA_CATEGORY);
-            Note noter = (Note) data.getSerializableExtra(WritingActivity.EXTRA_ID);
+            //Note noter = (Note) data.getSerializableExtra(WritingActivity.EXTRA_ID);
 
             SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a");
             String ntime = timeFormat.format(calendar.getTime());
             time = ntime.replace("am", "AM").replace("pm", "PM");
+            note = new Note(note.getInfo(), note.getCategory(), note.getDate(), note.getTime());
             note = new Note(title, category, date, time);
-            note.setId(id);
+            /////note.setId(id);
             noteViewModel.update(note);
             Toast.makeText(this, "Note Updated!", Toast.LENGTH_SHORT).show();
-
-
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
@@ -252,7 +253,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void openTab(View view) {
         Intent intent = new Intent(this, WritingActivity.class);
-        startActivityForResult(intent, NEW_WORD_ACTIVITY_CODE);
+        startActivityForResult(intent, Add_Note_Function);
     }
 
 
@@ -355,5 +356,12 @@ public class MainActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    public void onTimeSet(TimePicker timePicker, int i, int i1) {
+        Calendar c = Calendar.getInstance();
+        c.set(Calendar.HOUR_OF_DAY, i);
+        c.set(Calendar.MINUTE, i1);
     }
 }
