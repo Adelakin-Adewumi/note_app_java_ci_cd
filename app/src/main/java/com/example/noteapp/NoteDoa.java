@@ -13,7 +13,7 @@ import java.util.List;
 @Dao
 public interface NoteDoa {
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(Note note);
 
     @Update
@@ -21,6 +21,7 @@ public interface NoteDoa {
 
     @Delete
     void delete(Note note);
+
 
     @Query("DELETE FROM note_table")
     void deleteAllNotes();

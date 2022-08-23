@@ -113,8 +113,7 @@ public class WritingAdapter extends RecyclerView.ViewHolder {
                 if (listener != null && position !=
                         RecyclerView.NO_POSITION) {
                     listener.onItemClick(mNote.get(position));
-                    String title = data.getStringExtra(WritingActivity.EXTRA_TITLE);
-                    String category = data.getStringExtra(WritingActivity.EXTRA_CATEGORY);
+
                     Calendar calendar = Calendar.getInstance();
                     SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
                     String date = dateFormat.format(calendar.getTime());
@@ -123,8 +122,6 @@ public class WritingAdapter extends RecyclerView.ViewHolder {
                 }
             });
         }
-
-
 
         @Override
         public void onClick(View view) {

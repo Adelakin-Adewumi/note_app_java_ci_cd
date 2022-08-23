@@ -18,28 +18,24 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 public class WritingActivity extends AppCompatActivity {
     private EditText mMessageText;
-    public static final String EXTRA_ID = "com.example.noteapp.EXTRA_ID";
-    public static final String EXTRA_TITLE = "com.example.noteapp.EXTRA_TITLE";
-    public static final String EXTRA_DATE = "com.example.noteapp.EXTRA_ID";
-    public static final String EXTRA_CATEGORY = "com.example.noteapp.EXTRA_CATEGORY";
-    public static final String EXTRA_MESSAGE = "com.example.noteapp.EXTRA_CATEGORY";
-    public static final String EXTRA_TIME = "com.example.noteapp.EXTRA.TIME";
+    public static final String EXTRA_ID = "com.example.achitectureexample.EXTRA_ID";
+
+    public static final String EXTRA_NOTE = "com.example.noteapp.EXTRA_NOTE";
     public static final int BLUE = -16776961;
     public static final int DKGRAY = -12303292;
     public static final int GREEN = -16711936;
     public static final int LTGRAY = -3355444;
     public static final int RED = -65536;
-    public static final int RESULT_CODE = 2;
-    //static String value;
-
+    private Note note;
 
     RadioButton imgView1, imgView2, imgView3, imgView4, imgView5;
     RadioGroup group;
-    private SharedPreferences mPreferences;
-    public static final String sharedPrefFile =
-            "com.example.android.hellosharedprefs";
+
     View view;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,12 +48,13 @@ public class WritingActivity extends AppCompatActivity {
         imgView4 = findViewById(R.id.rbWork);
         imgView5 = findViewById(R.id.rbFam);
         group = findViewById(R.id.radioImg);
-        mPreferences = getSharedPreferences(sharedPrefFile, MODE_PRIVATE);
 
         Intent intent = getIntent();
-        if (intent.hasExtra(EXTRA_ID)) {
+        if (intent.hasExtra(EXTRA_NOTE)) {
             setTitle("Edit Note");
-            mMessageText.setText(intent.getStringExtra(EXTRA_TITLE));
+            note =(Note) intent.getSerializableExtra(EXTRA_NOTE);
+            String mMessage = note.getInfo();
+            mMessageText.setText(mMessage);
         } else {
             setTitle("Writing");
         }
@@ -71,70 +68,29 @@ public class WritingActivity extends AppCompatActivity {
                     Toast.LENGTH_SHORT).show();
             return;
         }
-        //String category = "";
-        Note mNote = new Note(message, EXTRA_CATEGORY, MainActivity.date, MainActivity.time);
-        //intent.putExtra(EXTRA_MESSAGE, mNote);
-        group.setOnCheckedChangeListener((radioGroup, i) -> {
-            switch (i) {
-                case R.id.rbUncategorized:
-                    Toast.makeText(this, "Uncategorized", Toast.LENGTH_SHORT).show();
-                    imgView1.setHighlightColor(RED);
-                    imgView1.getHighlightColor();
-                    String category = "Uncategorized!";
-                    intent.putExtra(EXTRA_CATEGORY, category);
-                    break;
-                //
-                case R.id.rbStudy:
-                    Toast.makeText(this, "Study", Toast.LENGTH_SHORT).show();
-                    imgView2.setHighlightColor(DKGRAY);
-                    imgView2.getHighlightColor();
-                    category = "Study";
-                    intent.putExtra(EXTRA_CATEGORY, category);
-                    break;
-                //
-                case R.id.rbPersonal:
-                    Toast.makeText(this, "Personal", Toast.LENGTH_SHORT).show();
-                    imgView3.setHighlightColor(GREEN);
-                    imgView3.getHighlightColor();
-                    category = "Personal";
-                    intent.putExtra(EXTRA_CATEGORY, category);
-                    break;
-                //
-                case R.id.rbWork:
-                    Toast.makeText(this, "Work", Toast.LENGTH_SHORT).show();
-                    imgView4.setHighlightColor(LTGRAY);
-                    imgView4.getHighlightColor();
-                    category = "Work";
-                    //category.equals("Work");
-                    intent.putExtra(EXTRA_CATEGORY, category);
-                    break;
-                //
-                case R.id.rbFam:
-                    Toast.makeText(this, "Family", Toast.LENGTH_SHORT).show();
-                    //imgView5.setBackgroundColor(BLUE);
-                    imgView5.setHighlightColor(BLUE);
-                    category = "Family";
-                    intent.putExtra(EXTRA_CATEGORY, category);
-                    break;
-                default:
-                    break;
-            }
-        });
-        //intent.putExtra(EXTRA_CATEGORY, category);
-        mNote.setInfo(message);
-        mNote.setCategory(EXTRA_CATEGORY);
-        mNote.setDate(MainActivity.date);
-        mNote.setTime(MainActivity.time);
-        intent.putExtra(EXTRA_TITLE, message);
-       if (intent.hasExtra(EXTRA_MESSAGE)) {
-           Toast.makeText(this, "Noted!", Toast.LENGTH_LONG).show();
-            String message1 = mMessageText.getText().toString();
-            intent.putExtra(EXTRA_TITLE, message1);
-            setResult(RESULT_CODE, intent);
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy");
+
+
+        String date = dateFormat.format(calendar.getTime());
+
+        SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a");
+        String ntime = timeFormat.format(calendar.getTime());
+        String time = ntime.replace("am", "AM").replace("pm", "PM");
+        note = new Note();
+        note.setInfo(message);
+        note.setCategory("Category");
+        note.setDate(date);
+        note.setTime(time);
+        intent.putExtra(EXTRA_NOTE, note);
+
+
+        int id = getIntent().getIntExtra(EXTRA_ID, -1);
+        if (id != -1) {
+            Toast.makeText(this, "Note It", Toast.LENGTH_SHORT).show();
+            intent.putExtra(EXTRA_ID, id);
         }
 
-        //int id = intent.getIntExtra(EXTRA_ID, -1);
-        //intent.putExtra(EXTRA_ID, id);
         setResult(RESULT_OK, intent);
         finish();
     }

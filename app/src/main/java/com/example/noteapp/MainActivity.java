@@ -2,6 +2,7 @@ package com.example.noteapp;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -27,6 +28,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -44,27 +46,20 @@ import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements TimePickerDialog.OnTimeSetListener {
     private RecyclerView mRecyclerView;
-    //private NoteListAdapter adapter;
     private NoteAdapter adapter;
-    String title;
-    String category;
     private ArrayList<Note> mNote;
-    private static final int EXTRA_REQUEST = 2;
     private NoteViewModel noteViewModel;
-    static String date;
     static String time;
-    Note note;
     boolean isDarkModeOn;
     SharedPreferences.Editor preferencesEditor;
     private AlertDialog dialog;
-    View view;
     private SharedPreferences mPreferences;
     public static final int Add_Note_Function = 1;
     public static final int Edit_Note_Function = 2;
     private static final int NOTIFICATION_ID = 0;
     private static final String PRIMARY_CHANNEL_ID = "primary_notification_channel";
     private NotificationManager mNotifyManager;
-    MenuItem item;
+
 
     @NonNull
     private NotificationCompat.Builder getNotificationBuilder(){
@@ -95,11 +90,15 @@ public class MainActivity extends AppCompatActivity implements TimePickerDialog.
             mNotifyManager.createNotificationChannel(notificationChannel);
         }
     }
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mRecyclerView = findViewById(R.id.recyclerView);
+
+
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(false);
 
         //adapter = new NoteListAdapter(new NoteListAdapter.WordDiff());
@@ -109,6 +108,7 @@ public class MainActivity extends AppCompatActivity implements TimePickerDialog.
         mRecyclerView.setLayoutManager(layout);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mRecyclerView.setAdapter(adapter);
+        System.out.println("Hey");
 
         //Get the time for the alert
         Calendar calendar = Calendar.getInstance();
@@ -133,15 +133,8 @@ public class MainActivity extends AppCompatActivity implements TimePickerDialog.
             @Override
             public void onItemClick(Note note) {
                 Intent data = new Intent(MainActivity.this, WritingActivity.class);
-                String info = note.getInfo();
-                String category = note.getCategory();
-                String date = note.getDate();
+                data.putExtra(WritingActivity.EXTRA_NOTE, note);
 
-                int id = note.getId();
-                data.putExtra(WritingActivity.EXTRA_TITLE, info);
-                data.putExtra(WritingActivity.EXTRA_CATEGORY, category);
-                data.putExtra(WritingActivity.EXTRA_DATE, date);
-                data.putExtra(WritingActivity.EXTRA_ID, id);
                 startActivityForResult(data, Edit_Note_Function);
             }
         });
@@ -164,37 +157,29 @@ public class MainActivity extends AppCompatActivity implements TimePickerDialog.
                         return false;
                     }
 
-
-
                     @Override
                     public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                        dialog = new AlertDialog.Builder(MainActivity.this, R.style.AlertDialogTheme)
+                        dialog = new AlertDialog.Builder(MainActivity.this, androidx.appcompat.R.style.ThemeOverlay_AppCompat_ActionBar)
                                 .setTitle(getString(R.string.Delete))
                                 .setMessage(getString(R.string.delete_text))
-                                .setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        final int adapterPosition = viewHolder.getAdapterPosition();
-                                        final Note mNote = adapter.getNoteAt(adapterPosition);
+                                .setPositiveButton(getString(R.string.yes), (dialog, which) -> {
+                                    final int adapterPosition = viewHolder.getAdapterPosition();
+                                    final Note mNote = adapter.getNoteAt(adapterPosition);
 
 
-                                        Snackbar snackbar = Snackbar.make(mRecyclerView, "Note Deleted!"
-                                        , Snackbar.LENGTH_SHORT).setAction(
-                                                "Undo", view -> noteViewModel.insert(mNote)
-                                        );
-
-                                        snackbar.show();
-                                        noteViewModel.delete(adapter.getNoteAt(viewHolder
-                                        .getAdapterPosition()));
-                                        dialog.cancel();
-                                        //mRecyclerView.getAdapter().notifyDataSetChanged();
-
-                                    }
+                                    Snackbar snackbar = Snackbar.make(mRecyclerView, "Note Deleted!"
+                                    , Snackbar.LENGTH_SHORT).setAction(
+                                            "Undo", view -> noteViewModel.insert(mNote)
+                                    );
+                                    snackbar.show();
+                                    noteViewModel.delete(adapter.getNoteAt(viewHolder
+                                    .getAdapterPosition()));
+                                    dialog.cancel();
                                 })
                                 .setNegativeButton(getString(R.string.no), (dialog, which) -> {
-                                    //mAdapter.cancelDelete(viewHolder.getAdapterPosition());
                                     adapter.notifyDataSetChanged();
                                     dialog.cancel();
-                                    //mRecyclerView.getAdapter().notifyDataSetChanged();
+
                                 })
                                 .setIcon(ContextCompat.getDrawable(getApplicationContext(),
                                         R.drawable.ic_delete)).show();
@@ -207,55 +192,36 @@ public class MainActivity extends AppCompatActivity implements TimePickerDialog.
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-
         if (requestCode == Add_Note_Function && resultCode == RESULT_OK) {
             assert data != null;
+            Note note1 = (Note) data.getSerializableExtra(WritingActivity.EXTRA_NOTE);
 
-            title = data.getStringExtra(WritingActivity.EXTRA_TITLE);
-            Calendar calendar = Calendar.getInstance();
-            SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy");
-            SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a");
-            String ntime = timeFormat.format(calendar.getTime());
-            time = ntime.replace("am", "AM").replace("pm", "PM");
-            date = dateFormat.format(calendar.getTime());
-
-            //note = new Note(title, category, date, time);
-            note = new Note(note.getInfo(), note.getCategory(),
-                    note.getDate(), note.getTime());
-            //note = new Note(title, category, date, time);
             Toast.makeText(this, "Note Saved!", Toast.LENGTH_SHORT).show();
-            noteViewModel.insert(note);
+
+            noteViewModel.insert(note1);
         }
         else if (requestCode == Edit_Note_Function && resultCode == RESULT_OK) {
+
             assert data != null;
-            int id = data.getIntExtra(WritingActivity.EXTRA_ID, -1);
-
-            Calendar calendar = Calendar.getInstance();
-            SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy");
-
-            title = data.getStringExtra(WritingActivity.EXTRA_TITLE);
-            date = dateFormat.format(calendar.getTime());
-            category = data.getStringExtra(WritingActivity.EXTRA_CATEGORY);
-            //Note noter = (Note) data.getSerializableExtra(WritingActivity.EXTRA_ID);
-
-            SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a");
-            String ntime = timeFormat.format(calendar.getTime());
-            time = ntime.replace("am", "AM").replace("pm", "PM");
-            note = new Note(note.getInfo(), note.getCategory(), note.getDate(), note.getTime());
-            note = new Note(title, category, date, time);
-            /////note.setId(id);
-            noteViewModel.update(note);
+            int id = data.getIntExtra(WritingActivity.EXTRA_ID, -2);
+            if (id == -1) {
+                Toast.makeText(this, "Note can't be updated", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            Note note1 = (Note) data.getSerializableExtra(WritingActivity.EXTRA_NOTE);
+            note1.setId(note1.getId());
+            noteViewModel.insert(note1);
             Toast.makeText(this, "Note Updated!", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Note not saved!", Toast.LENGTH_SHORT).show();
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
-
 
     public void openTab(View view) {
         Intent intent = new Intent(this, WritingActivity.class);
         startActivityForResult(intent, Add_Note_Function);
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -288,40 +254,34 @@ public class MainActivity extends AppCompatActivity implements TimePickerDialog.
             nightMode.setVisible(true);
         }
 
-        nightMode.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                AppCompatDelegate
-                        .setDefaultNightMode(
-                                AppCompatDelegate
-                                        .MODE_NIGHT_YES);
+        nightMode.setOnMenuItemClickListener(item -> {
+            AppCompatDelegate
+                    .setDefaultNightMode(
+                            AppCompatDelegate
+                                    .MODE_NIGHT_YES);
 
-                preferencesEditor.putBoolean(
-                        "isDarkModeOn", true);
-                preferencesEditor.apply();
-                Toast.makeText(getApplicationContext(), "Dark Mode On ", Toast.LENGTH_SHORT).show();
-                dayMode.setVisible(true);
-                nightMode.setVisible(false);
-                return true;
-            }
+            preferencesEditor.putBoolean(
+                    "isDarkModeOn", true);
+            preferencesEditor.apply();
+            Toast.makeText(getApplicationContext(), "Night Mode", Toast.LENGTH_SHORT).show();
+            dayMode.setVisible(true);
+            nightMode.setVisible(false);
+            return true;
         });
 
-        dayMode.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                AppCompatDelegate
-                        .setDefaultNightMode(
-                                AppCompatDelegate
-                                        .MODE_NIGHT_NO);
-                preferencesEditor.putBoolean(
-                        "isDarkModeOn", false);
-                preferencesEditor.apply();
-                Toast.makeText(getApplicationContext(), "Dark Mode Off", Toast.LENGTH_SHORT).show();
-                dayMode.setVisible(false);
-                nightMode.setVisible(true);
-                return true;
+        dayMode.setOnMenuItemClickListener(item -> {
+            AppCompatDelegate
+                    .setDefaultNightMode(
+                            AppCompatDelegate
+                                    .MODE_NIGHT_NO);
+            preferencesEditor.putBoolean(
+                    "isDarkModeOn", false);
+            preferencesEditor.apply();
+            Toast.makeText(getApplicationContext(), "Day Mode", Toast.LENGTH_SHORT).show();
+            dayMode.setVisible(false);
+            nightMode.setVisible(true);
+            return true;
 
-            }
         });
 
         return super.onCreateOptionsMenu(menu);
@@ -347,9 +307,22 @@ public class MainActivity extends AppCompatActivity implements TimePickerDialog.
                 });
                 return true;
             case R.id.delete:
-                Toast.makeText(this, "All Deleted!", Toast.LENGTH_SHORT).show();
-                mNote.clear();
-                noteViewModel.deleteAll(note);
+                dialog = new AlertDialog.Builder(MainActivity.this, androidx.appcompat.R.style.ThemeOverlay_AppCompat_ActionBar)
+                        .setTitle(getString(R.string.Delete))
+                        .setMessage(getString(R.string.delete_text))
+                        .setPositiveButton(getString(R.string.yes), (dialog, which) -> {
+                            noteViewModel.deleteAll();
+                            Toast.makeText(this, "All Deleted!", Toast.LENGTH_SHORT).show();
+                            mNote.clear();
+                            dialog.cancel();
+                        })
+                        .setNegativeButton(getString(R.string.no), (dialog, which) -> {
+                            adapter.notifyDataSetChanged();
+                            dialog.cancel();
+
+                        })
+                        .setIcon(ContextCompat.getDrawable(getApplicationContext(),
+                                R.drawable.ic_delete)).show();
                 mRecyclerView.getAdapter().notifyDataSetChanged();
                 //mAdapter.deleteAll();
                 return true;//

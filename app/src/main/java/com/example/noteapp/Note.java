@@ -1,9 +1,6 @@
 package com.example.noteapp;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
-import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
@@ -14,12 +11,20 @@ import java.io.Serializable;
 public class Note implements Serializable {
 
     @PrimaryKey(autoGenerate = true)
-    private int priorityNumber;
-    String info;
-    String category;
     private int id;
-    String date;
-    String time;
+    private int priorityNumber;
+    @ColumnInfo(name = "info")
+    private String info;
+    @ColumnInfo(name = "category")
+    private String category;
+    @ColumnInfo(name = "date")
+    private String date;
+    @ColumnInfo(name = "time")
+    private String time;
+
+    public Note() {
+
+    }
 
     public Note(String info, String category, String date, String time) {
         this.info = info;
@@ -28,6 +33,7 @@ public class Note implements Serializable {
         this.time = time;
     }
 
+
     public int getId() {
         return id;
     }
@@ -35,7 +41,6 @@ public class Note implements Serializable {
     public void setId(int id) {
         this.id = id;
     }
-
 
     public String getTime() {
         return time;
