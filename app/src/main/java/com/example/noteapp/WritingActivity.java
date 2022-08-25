@@ -23,32 +23,17 @@ import java.util.Calendar;
 
 public class WritingActivity extends AppCompatActivity {
     private EditText mMessageText;
-    public static final String EXTRA_ID = "com.example.achitectureexample.EXTRA_ID";
-
     public static final String EXTRA_NOTE = "com.example.noteapp.EXTRA_NOTE";
-    public static final int BLUE = -16776961;
-    public static final int DKGRAY = -12303292;
-    public static final int GREEN = -16711936;
-    public static final int LTGRAY = -3355444;
-    public static final int RED = -65536;
     private Note note;
 
-    RadioButton imgView1, imgView2, imgView3, imgView4, imgView5;
-    RadioGroup group;
 
-    View view;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_writing);
         mMessageText = findViewById(R.id.edtText);
-        imgView1 = findViewById(R.id.rbUncategorized);
-        imgView2 = findViewById(R.id.rbStudy);
-        imgView3 = findViewById(R.id.rbPersonal);
-        imgView4 = findViewById(R.id.rbWork);
-        imgView5 = findViewById(R.id.rbFam);
-        group = findViewById(R.id.radioImg);
 
+        //Gets intent from the MainActivity
         Intent intent = getIntent();
         if (intent.hasExtra(EXTRA_NOTE)) {
             setTitle("Edit Note");
@@ -60,7 +45,7 @@ public class WritingActivity extends AppCompatActivity {
         }
     }
 
-    public void saveIt(View view) {
+    public void saveIt() {
         Intent intent = new Intent();
         String message = mMessageText.getText().toString();
         if (message.trim().isEmpty()) {
@@ -68,28 +53,24 @@ public class WritingActivity extends AppCompatActivity {
                     Toast.LENGTH_SHORT).show();
             return;
         }
+
+        //Gets date
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy");
-
-
         String date = dateFormat.format(calendar.getTime());
 
+        //Gets time
         SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a");
         String ntime = timeFormat.format(calendar.getTime());
         String time = ntime.replace("am", "AM").replace("pm", "PM");
-        note = new Note();
+        if (note == null) {
+            note = new Note();
+        }
         note.setInfo(message);
-        note.setCategory("Category");
+        note.setCategory("");
         note.setDate(date);
         note.setTime(time);
         intent.putExtra(EXTRA_NOTE, note);
-
-
-        int id = getIntent().getIntExtra(EXTRA_ID, -1);
-        if (id != -1) {
-            Toast.makeText(this, "Note It", Toast.LENGTH_SHORT).show();
-            intent.putExtra(EXTRA_ID, id);
-        }
 
         setResult(RESULT_OK, intent);
         finish();
@@ -106,7 +87,7 @@ public class WritingActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.save_note:
-                saveIt(view);
+                saveIt();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

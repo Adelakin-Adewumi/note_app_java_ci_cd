@@ -32,7 +32,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/time"
         android:text="@string/time"
-        android:layout_marginStart="140dp"
+        android:layout_marginStart="80dp"
         android:layout_marginTop="25dp"/>
 
     <TextView
@@ -51,7 +51,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="@+id/category"
         android:layout_alignParentTop="@+id/textInfo"
-        android:layout_marginStart="200dp"
+        android:layout_marginStart="180dp"
         android:text="@string/date"
         android:id="@+id/date"
         app:layout_constraintStart_toEndOf="@id/category"

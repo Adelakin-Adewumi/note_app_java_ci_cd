@@ -16,7 +16,9 @@ import java.util.Calendar;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Database(entities = {Note.class}, version = 2, exportSchema = false)
+/**
+ * NoteDatabase gets the */
+@Database(entities = {Note.class}, version = 1, exportSchema = false)
 public abstract class NoteDatabase extends RoomDatabase {
 
     private static volatile NoteDatabase INSTANCE;
@@ -31,7 +33,7 @@ public abstract class NoteDatabase extends RoomDatabase {
             synchronized (NoteDatabase.class) {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
-                            NoteDatabase.class, "word_database")
+                            NoteDatabase.class, "note_database")
                             .addCallback(sNoteDatabaseCallback)
                             .build();
                 }
@@ -53,8 +55,10 @@ public abstract class NoteDatabase extends RoomDatabase {
                 Calendar calendar = Calendar.getInstance();
                 SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a");
                 String ntime = timeFormat.format(calendar.getTime());
+                SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy");
+                String date = dateFormat.format(calendar.getTime());
                 String time = ntime.replace("am", "AM").replace("pm", "PM");
-                Note note = new Note("We're coming", "Personal", "Now", time);
+                Note note = new Note("We're coming", "", date, time);
                 doa.insert(note);
             });
         }

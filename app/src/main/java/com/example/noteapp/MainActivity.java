@@ -98,12 +98,13 @@ public class MainActivity extends AppCompatActivity implements TimePickerDialog.
         setContentView(R.layout.activity_main);
         mRecyclerView = findViewById(R.id.recyclerView);
 
-
+        //Removing the back Navigation on the home app bar
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(false);
 
-        //adapter = new NoteListAdapter(new NoteListAdapter.WordDiff());
-        setTitle("NoteX");
+        //Initializing the adapter
         adapter = new NoteAdapter();
+
+        //Creating the RecyclerView Layout Manager
         RecyclerView.LayoutManager layout = new LinearLayoutManager(getApplicationContext());
         mRecyclerView.setLayoutManager(layout);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -121,14 +122,18 @@ public class MainActivity extends AppCompatActivity implements TimePickerDialog.
         createNotificationChannel();
 
 
-        //mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        //Initializing the ArrayList
         mNote = new ArrayList<>();
+
+        //Initializing the NoteViewModel Class and linking it to the ArrayList created
         noteViewModel = new ViewModelProvider(this)
                 .get(NoteViewModel.class);
         noteViewModel.getAllWords().observe(this, notes -> {
             adapter.submitList(notes);
             mNote = new ArrayList<>(notes);
         });
+
+        //Setting the adapter onClick
         adapter.setOnItemClickListener(new NoteAdapter.onItemClickListener() {
             @Override
             public void onItemClick(Note note) {
@@ -139,6 +144,7 @@ public class MainActivity extends AppCompatActivity implements TimePickerDialog.
             }
         });
 
+        //Calling and setting the ItemTouchHelper to the RecyclerView
         setItemTouchHelper(mRecyclerView);
     }
 
@@ -156,6 +162,7 @@ public class MainActivity extends AppCompatActivity implements TimePickerDialog.
                             viewHolder, @NonNull RecyclerView.ViewHolder target) {
                         return false;
                     }
+
 
                     @Override
                     public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
@@ -194,23 +201,21 @@ public class MainActivity extends AppCompatActivity implements TimePickerDialog.
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (requestCode == Add_Note_Function && resultCode == RESULT_OK) {
             assert data != null;
+
+            //Gets the note from the Writing Activity
             Note note1 = (Note) data.getSerializableExtra(WritingActivity.EXTRA_NOTE);
 
             Toast.makeText(this, "Note Saved!", Toast.LENGTH_SHORT).show();
 
+            //Inserts the new note
             noteViewModel.insert(note1);
         }
         else if (requestCode == Edit_Note_Function && resultCode == RESULT_OK) {
 
             assert data != null;
-            int id = data.getIntExtra(WritingActivity.EXTRA_ID, -2);
-            if (id == -1) {
-                Toast.makeText(this, "Note can't be updated", Toast.LENGTH_SHORT).show();
-                return;
-            }
+            //Gets the note extra from the Writing Activity
             Note note1 = (Note) data.getSerializableExtra(WritingActivity.EXTRA_NOTE);
-            note1.setId(note1.getId());
-            noteViewModel.insert(note1);
+            noteViewModel.update(note1);
             Toast.makeText(this, "Note Updated!", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(this, "Note not saved!", Toast.LENGTH_SHORT).show();
@@ -218,6 +223,7 @@ public class MainActivity extends AppCompatActivity implements TimePickerDialog.
         super.onActivityResult(requestCode, resultCode, data);
     }
 
+    //Float Action Button OnClick
     public void openTab(View view) {
         Intent intent = new Intent(this, WritingActivity.class);
         startActivityForResult(intent, Add_Note_Function);
@@ -254,6 +260,7 @@ public class MainActivity extends AppCompatActivity implements TimePickerDialog.
             nightMode.setVisible(true);
         }
 
+        //Night Mode OnClick
         nightMode.setOnMenuItemClickListener(item -> {
             AppCompatDelegate
                     .setDefaultNightMode(
@@ -269,6 +276,7 @@ public class MainActivity extends AppCompatActivity implements TimePickerDialog.
             return true;
         });
 
+        //Day Mode OnClick
         dayMode.setOnMenuItemClickListener(item -> {
             AppCompatDelegate
                     .setDefaultNightMode(
@@ -290,26 +298,11 @@ public class MainActivity extends AppCompatActivity implements TimePickerDialog.
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.sortBy:
-                Toast.makeText(this, "Sort Clicked", Toast.LENGTH_SHORT).show();
-                Collections.sort(mNote, new Comparator<Note>() {
-                    DateFormat format = new SimpleDateFormat("dd/MM/yy");
-                    @Override
-                    public int compare(Note note, Note t1) {
-                        try {
-                            return Objects.requireNonNull(format.parse(note.getDate())).compareTo(
-                                    format.parse(t1.getDate())
-                            );
-                        } catch (ParseException e) {
-                            throw new IllegalArgumentException(e);
-                        }
-                    }
-                });
-                return true;
             case R.id.delete:
+                //Dialog Design for Deleting all notes
                 dialog = new AlertDialog.Builder(MainActivity.this, androidx.appcompat.R.style.ThemeOverlay_AppCompat_ActionBar)
                         .setTitle(getString(R.string.Delete))
-                        .setMessage(getString(R.string.delete_text))
+                        .setMessage(getString(R.string.delete_all_text))
                         .setPositiveButton(getString(R.string.yes), (dialog, which) -> {
                             noteViewModel.deleteAll();
                             Toast.makeText(this, "All Deleted!", Toast.LENGTH_SHORT).show();

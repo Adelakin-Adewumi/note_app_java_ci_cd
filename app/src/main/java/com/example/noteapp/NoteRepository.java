@@ -28,9 +28,11 @@ class NoteRepository {
                 noteDoa.insert(note));
     }
 
-    public void update(Note note) {
-        new UpdateNodeAsyncTask(noteDoa).execute(note);
+    void update(Note note) {
+        NoteDatabase.databaseWriteExecutor.execute(() ->
+                noteDoa.update(note));
     }
+
 
     void delete(Note note) {
         NoteDatabase.databaseWriteExecutor.execute(() ->{
@@ -42,20 +44,5 @@ class NoteRepository {
         NoteDatabase.databaseWriteExecutor.execute(noteDoa::deleteAllNotes);
     }
 
-    private static class UpdateNodeAsyncTask extends AsyncTask<Note, Void, Void> {
-        private NoteDoa noteDoa;
-
-        private UpdateNodeAsyncTask(NoteDoa noteDoa) {
-            this.noteDoa = noteDoa;
-        }
-
-        @Override
-        protected Void doInBackground(Note... notes) {
-            noteDoa.update(notes[0]);
-            return null;
-        }
-
-
-    }
 
 }

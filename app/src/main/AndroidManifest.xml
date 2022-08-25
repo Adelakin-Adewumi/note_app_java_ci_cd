@@ -5,7 +5,7 @@
     <application
         android:allowBackup="true"
         android:icon="@drawable/note_download"
-        android:label="Notes"
+        android:label="NoteX"
         android:supportsRtl="true"
         android:theme="@style/Theme.NoteApp">
 

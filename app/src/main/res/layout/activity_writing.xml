@@ -34,52 +34,6 @@
 
 
 
-    <RadioGroup
-        android:layout_width="match_parent"
-        android:id="@+id/radioImg"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent">
 
-        <RadioButton
-            android:id="@+id/rbUncategorized"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="12dp"
-            android:button="@drawable/ic_uncategorized"/>
-
-        <RadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/rbStudy"
-            android:layout_margin="12dp"
-            android:button="@drawable/ic_study"/>
-
-        <RadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/rbPersonal"
-            android:layout_margin="12dp"
-            android:button="@drawable/ic_personal"/>
-
-        <RadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/rbWork"
-            android:layout_margin="12dp"
-            android:button="@drawable/ic_work"/>
-
-        <RadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/rbFam"
-            android:layout_margin="12dp"
-            android:button="@drawable/ic_fam"/>
-
-    </RadioGroup>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

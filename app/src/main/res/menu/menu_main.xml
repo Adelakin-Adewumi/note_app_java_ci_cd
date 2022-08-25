@@ -3,9 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <group>
         <item
-            android:title="@string/sort_by"
-            android:id="@+id/sortBy"/>
-        <item
             android:title="@string/delete_all"
             android:id="@+id/delete"/>
     </group>
