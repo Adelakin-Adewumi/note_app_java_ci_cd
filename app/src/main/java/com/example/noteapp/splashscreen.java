@@ -4,11 +4,10 @@ package com.example.noteapp;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 
 public class splashscreen extends AppCompatActivity {
-    public static int SPLASH_TIME_OUT = 2000;
+    public static int SPLASH_TIME_OUT = 1500;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,7 +19,7 @@ public class splashscreen extends AppCompatActivity {
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
-                startActivity(new Intent(splashscreen.this, MainActivity.class));
+                startActivity(new Intent(this, MainActivity.class));
             }
         });
         thread.start();

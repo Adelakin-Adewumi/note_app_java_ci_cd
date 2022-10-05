@@ -1,7 +1,6 @@
 package com.example.noteapp;
 
 import android.app.Application;
-import android.os.AsyncTask;
 
 import androidx.lifecycle.LiveData;
 

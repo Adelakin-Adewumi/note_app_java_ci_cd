@@ -10,7 +10,7 @@ import java.util.List;
 
 public class NoteViewModel extends AndroidViewModel {
 
-    private NoteRepository mRepository;
+    private final NoteRepository mRepository;
 
     private final LiveData<List<Note>> mAllWords;
 

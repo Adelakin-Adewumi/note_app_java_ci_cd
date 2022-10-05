@@ -1,12 +1,9 @@
 package com.example.noteapp;
 
 import android.content.Context;
-import android.os.AsyncTask;
 
 import androidx.annotation.NonNull;
-import androidx.room.AutoMigration;
 import androidx.room.Database;
-import androidx.room.RenameTable;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.sqlite.db.SupportSQLiteDatabase;
@@ -58,7 +55,7 @@ public abstract class NoteDatabase extends RoomDatabase {
                 SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy");
                 String date = dateFormat.format(calendar.getTime());
                 String time = ntime.replace("am", "AM").replace("pm", "PM");
-                Note note = new Note("We're coming", "", date, time);
+                Note note = new Note("Let's create some notes!", "", date, time);
                 doa.insert(note);
             });
         }
