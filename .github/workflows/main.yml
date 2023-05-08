@@ -6,7 +6,6 @@ opensource-security:
        uses: snyk/actions/maven@master
        env:
          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
- 
   code-security:
    runs-on: ubuntu-latest
    steps:
@@ -16,8 +15,7 @@ opensource-security:
        env:
          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
        with:
-         command: code test
-         
+         command: code test       
 release:
    needs: [opensource-security, code-security, build]
    runs-on: ubuntu-latest
@@ -35,7 +33,6 @@ release:
        run: mvn -B release:prepare release:perform -DskipTests
        env:
          GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
-
 opensource-monitor:
    needs: [release]
    runs-on: ubuntu-latest
