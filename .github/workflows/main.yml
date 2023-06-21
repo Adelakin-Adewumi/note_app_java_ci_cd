@@ -19,6 +19,7 @@ jobs:
          git config user.email "adelakinadewumi@gmail.com"
          git config user.name "Adelakin-adewumi"
      - name: Run build with gradle wrapper
+        sh "chmod +x build.gradle"
        run: ./build.gradle
        env:
          GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
