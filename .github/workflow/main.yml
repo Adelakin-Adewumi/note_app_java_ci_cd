@@ -1,49 +1,53 @@
-opensource-security:
-   runs-on: ubuntu-latest
-   steps:
-     - uses: actions/checkout@master
-     - name: Run Snyk to check for vulnerabilities
-       uses: snyk/actions/maven@master
-       env:
-         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
- 
-  code-security:
-   runs-on: ubuntu-latest
-   steps:
-     - uses: actions/checkout@master
-     - name: Run Snyk to check for vulnerabilities
-       uses: snyk/actions/maven@master
-       env:
-         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-       with:
-         command: code test
-         
-release:
-   needs: [opensource-security, code-security, build]
-   runs-on: ubuntu-latest
-   steps:
+name: Java CI with Maven
+
+on: 
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    steps:
      - uses: actions/checkout@v2
      - name: Set up JDK 17
        uses: actions/setup-java@v1
        with:
-         java-version: 17
+         java-version: '17'
      - name: Set Git user
        run: |
          git config user.email "adelakinadewumi@gmail.com"
          git config user.name "Adelakin-adewumi"
      - name: Publish JAR
-       run: mvn -B release:prepare release:perform -DskipTests
+       run: mvn -B package --file AndroidManifest.xml
        env:
          GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
+ 
+  # code-security:
+  #  runs-on: ubuntu-latest
+  #  steps:
+  #    - uses: actions/checkout@master
+  #    - name: Run Snyk to check for vulnerabilities
+  #      uses: snyk/actions/maven@master
+  #      env:
+  #        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+  #      with:
+  #        command: code test
+         
+# release:
+#    needs: [opensource-security, code-security, build]
 
-opensource-monitor:
-   needs: [release]
-   runs-on: ubuntu-latest
-   steps:
-     - uses: actions/checkout@master
-     - name: Run Snyk to check for vulnerabilities
-       uses: snyk/actions/maven@master
-       env:
-         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-       with:
-         command: monitor
+
+# opensource-monitor:
+#    needs: [release]
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@master
+#      - name: Run Snyk to check for vulnerabilities
+#        uses: snyk/actions/maven@master
+#        env:
+#          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+#        with:
+#          command: monitor
