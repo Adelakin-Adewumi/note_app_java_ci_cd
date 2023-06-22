@@ -20,9 +20,9 @@ jobs:
          git config user.email "adelakinadewumi@gmail.com"
          git config user.name "Adelakin-adewumi"
      - name: Change wrapper permissions
-       run: chmod +x ./build.gradle
+       run: chmod +x ./gradlew
      - name: Run build with gradle wrapper
-       run: ./build.gradle
+       run: ./gradlew
        env:
          GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
  
